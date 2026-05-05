@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String    @id @default(cuid())
+  name            String?
+  email           String    @unique
+  phone           String?
+  password        String
+  role            String    // LANDLORD | TENANT
+  profilePhotoUrl String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  isVerified      Boolean   @default(false)
+  isApproved      Boolean   @default(false)
+  isDefault       Boolean   @default(false)
+
+  // Relations
+  properties      Property[]
+  landlordTenancies Tenancy[] @relation("LandlordToTenancy")
+  tenantTenancies   Tenancy[] @relation("TenantToTenancy")
+  sentMessages      Message[]
+  payments          Payment[]
+  repairReports     RepairReport[]
+  uploadedDocs      Document[]
+  notifications     Notification[]
+}
+
+model Property {
+  id              String    @id @default(cuid())
+  landlordId      String
+  landlord        User      @relation(fields: [landlordId], references: [id])
+  address         String
+  type            String    // HOUSE | APARTMENT | ROOM | OTHER
+  photoUrl        String?
+  inviteCode      String    @unique
+  inviteExpiresAt DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenancies       Tenancy[]
+}
+
+model Tenancy {
+  id                  String    @id @default(cuid())
+  propertyId          String
+  property            Property  @relation(fields: [propertyId], references: [id])
+  landlordId          String
+  landlord            User      @relation("LandlordToTenancy", fields: [landlordId], references: [id])
+  tenantId            String
+  tenant              User      @relation("TenantToTenancy", fields: [tenantId], references: [id])
+  startDate           DateTime
+  endDate             DateTime?
+  status              String    // ACTIVE | ENDED
+  monthlyRent         Float
+  rentDueDay          Int       // 1-28
+  gracePeriodDays     Int       @default(5)
+  lateFeeAmount       Float     @default(0)
+  paymentInstructions String?
+  depositAmount       Float?
+  leaseDocumentUrl    String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  messages            Message[]
+  payments            Payment[]
+  repairReports       RepairReport[]
+  documents           Document[]
+}
+
+model Message {
+  id                  String    @id @default(cuid())
+  tenancyId           String
+  tenancy             Tenancy   @relation(fields: [tenancyId], references: [id])
+  senderId            String
+  sender              User      @relation(fields: [senderId], references: [id])
+  senderRole          String    // LANDLORD | TENANT
+  type                String    // TEXT | PHOTO | FILE | SYSTEM | OFFICIAL_NOTICE
+  content             String
+  attachmentUrls      String?   // JSON string or comma-separated
+  noticeType          String?   // Rent Increase | Inspection | etc.
+  noticeAcknowledgedAt DateTime?
+  noticePdfUrl        String?
+  isRead              Boolean   @default(false)
+  readAt              DateTime?
+  sentAt              DateTime  @default(now())
+}
+
+model Payment {
+  id                  String    @id @default(cuid())
+  tenancyId           String
+  tenancy             Tenancy   @relation(fields: [tenancyId], references: [id])
+  tenantId            String
+  tenant              User      @relation(fields: [tenantId], references: [id])
+  amount              Float
+  currency            String    @default("KES")
+  period              String    // e.g. "June 2026"
+  status              String    // PENDING | CONFIRMED | DISPUTED
+  paymentReference    String?
+  receiptScreenshotUrl String?
+  confirmedAt         DateTime?
+  receiptPdfUrl       String?
+  submittedAt         DateTime  @default(now())
+}
+
+model RepairReport {
+  id                  String    @id @default(cuid())
+  tenancyId           String
+  tenancy             Tenancy   @relation(fields: [tenancyId], references: [id])
+  tenantId            String
+  tenant              User      @relation(fields: [tenantId], references: [id])
+  category            String    // PLUMBING | ELECTRICAL | etc.
+  urgency             String    // EMERGENCY | SOON | WHEN_POSSIBLE
+  description         String
+  photoUrls           String?   // JSON string or comma-separated
+  status              String    @default("SUBMITTED") // SUBMITTED | SEEN | IN_PROGRESS | RESOLVED
+  submittedAt         DateTime  @default(now())
+  seenAt              DateTime?
+  resolvedAt          DateTime?
+  resolutionNote      String?
+  
+  comments            Comment[]
+}
+
+model Comment {
+  id                  String    @id @default(cuid())
+  repairReportId      String
+  repairReport        RepairReport @relation(fields: [repairReportId], references: [id])
+  authorId            String
+  text                String
+  createdAt           DateTime  @default(now())
+}
+
+model Document {
+  id                  String    @id @default(cuid())
+  tenancyId           String
+  tenancy             Tenancy   @relation(fields: [tenancyId], references: [id])
+  uploadedById        String
+  uploadedBy          User      @relation(fields: [uploadedById], references: [id])
+  type                String    // LEASE | RECEIPT | NOTICE | REPAIR_REPORT | OTHER
+  filename            String
+  fileUrl             String
+  fileSizeKB          Int
+  uploadedAt          DateTime  @default(now())
+}
+
+model Notification {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id])
+  type                String
+  title               String
+  body                String
+  relatedEntityType   String?
+  relatedEntityId     String?
+  isRead              Boolean   @default(false)
+  sentAt              DateTime  @default(now())
+  readAt              DateTime?
+}

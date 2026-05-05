@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 36 33% 97%; /* #FAF8F5 - Warm White */
+    --foreground: 0 0% 10%;   /* #1A1A1A - Text Primary */
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 213 25% 23%;   /* #2D3A4A - Warm Slate */
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 18 51% 52%;  /* #C26B47 - Terracotta */
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 15 10% 91%;      /* #E8E4DF - Light border/muted */
+    --muted-foreground: 0 0% 42%; /* #6B6B6B - Text Secondary */
+
+    --accent: 18 51% 52%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 6 67% 46%; /* #C0392B - Dusty Red */
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 147 36% 45%;   /* #4A9B6F - Sage Green */
+    --warning: 37 91% 44%;    /* #D4860A - Amber */
+
+    --border: 15 10% 91%;
+    --input: 15 10% 91%;
+    --ring: 18 51% 52%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 213 25% 10%;
+    --foreground: 0 0% 98%;
+    --card: 213 25% 12%;
+    --card-foreground: 0 0% 98%;
+    --popover: 213 25% 12%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 213 25% 23%;
+    --secondary: 18 51% 52%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 213 25% 15%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 18 51% 52%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 6 67% 46%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 213 25% 20%;
+    --input: 213 25% 20%;
+    --ring: 18 51% 52%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-primary;
+  }
+}
+
+.chat-bubble-landlord {
+  @apply bg-primary text-white rounded-2xl rounded-tr-none px-4 py-2 max-w-[80%] self-end;
+}
+
+.chat-bubble-tenant {
+  @apply bg-white border border-muted text-foreground rounded-2xl rounded-tl-none px-4 py-2 max-w-[80%] self-start;
+}
