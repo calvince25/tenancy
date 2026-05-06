@@ -33,10 +33,9 @@ export async function POST(req: Request) {
     let isDefault = false;
 
     if (role === "LANDLORD") {
-      // Check if this is the first landlord
-      const landlordCount = await prisma.user.count({
-        where: { role: "LANDLORD" },
-      });
+      // Check if this is the first landlord using a RAW SQL query as requested
+      const result = await prisma.$queryRaw<{ count: bigint }[]>`SELECT COUNT(*) as count FROM "User" WHERE role = 'LANDLORD'`;
+      const landlordCount = Number(result[0].count);
 
       if (landlordCount >= 2) {
         return NextResponse.json(
@@ -81,9 +80,10 @@ export async function POST(req: Request) {
       { status: 201 }
     );
   } catch (error: any) {
-    if (error instanceof z.ZodError) {
+    console.error("Registration Error:", error);
+    if (error.name === "ZodError" || error instanceof z.ZodError) {
       return NextResponse.json({ message: error.issues[0].message }, { status: 400 });
     }
-    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+    return NextResponse.json({ message: error.message || "Something went wrong" }, { status: 500 });
   }
 }
