@@ -215,38 +215,8 @@ export function LandlordDashboard({ user }: { user: any }) {
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Sidebar - Optional, but adding simple nav for now */}
-      <aside className="w-64 border-r bg-white hidden lg:flex flex-col p-6 space-y-6">
-        <div className="font-serif text-2xl text-primary font-bold">NestSync</div>
-        <nav className="space-y-1">
-          <Button 
-            variant={activeTab === "DASHBOARD" ? "secondary" : "ghost"} 
-            className="w-full justify-start gap-3"
-            onClick={() => setActiveTab("DASHBOARD")}
-          >
-            <LayoutDashboard className="w-4 h-4" /> Dashboard
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-3">
-            <Building2 className="w-4 h-4" /> Properties
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-3">
-            <Users className="w-4 h-4" /> Tenants
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-3">
-            <Receipt className="w-4 h-4" /> Payments
-          </Button>
-          <Button variant="ghost" className="w-full justify-start gap-3">
-            <Droplets className="w-4 h-4" /> Water Bills
-          </Button>
-        </nav>
-      </aside>
-
-      <main className="flex-1 overflow-y-auto">
-        <div className="p-6 md:p-10">
-          {renderContent()}
-        </div>
-      </main>
+    <div className="animate-in fade-in duration-500">
+      {renderContent()}
     </div>
   );
 }

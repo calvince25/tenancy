@@ -24,11 +24,11 @@ export function TenantNav() {
           href={item.href}
           className={cn(
             "flex flex-col items-center justify-center gap-1 w-full h-full transition-colors",
-            pathname === item.href ? "text-accent" : "text-muted-foreground"
+            pathname === item.href ? "text-primary" : "text-muted-foreground"
           )}
         >
-          <item.icon className="w-6 h-6" />
-          <span className="text-[10px] uppercase font-medium tracking-wider text-center">{item.label}</span>
+          <item.icon className={cn("w-6 h-6", pathname === item.href && "text-primary")} />
+          <span className="text-[10px] uppercase font-bold tracking-tight text-center">{item.label}</span>
         </Link>
       ))}
     </nav>
