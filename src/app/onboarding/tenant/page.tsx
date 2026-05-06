@@ -20,40 +20,45 @@ function TenantOnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [inviteCode, setInviteCode] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [propertyInfo, setPropertyInfo] = useState<any>(null);
   const [step, setStep] = useState(1);
 
   useEffect(() => {
     const code = searchParams.get("code");
     if (code) {
-      setInviteCode(code);
+      handleJoinByCode(code);
     }
   }, [searchParams]);
 
-  async function onVerify() {
-    if (inviteCode.length !== 6) {
-      toast.error("Invite code must be 6 characters");
-      return;
+  async function handleSearch() {
+    if (searchQuery.length < 3) return;
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/properties?query=${encodeURIComponent(searchQuery)}`);
+      const data = await res.json();
+      setSearchResults(data);
+    } catch (error) {
+      toast.error("Search failed");
+    } finally {
+      setIsLoading(false);
     }
+  }
 
+  async function handleJoinByCode(code: string) {
     setIsLoading(true);
     try {
       const response = await fetch("/api/join", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inviteCode }),
+        body: JSON.stringify({ inviteCode: code }),
       });
-
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Something went wrong");
-      }
-
+      if (!response.ok) throw new Error(result.message);
       setPropertyInfo(result);
       setStep(2);
-      toast.success("Property found!");
+      toast.success("Joined property!");
     } catch (error: any) {
       toast.error(error.message);
     } finally {
@@ -66,37 +71,21 @@ function TenantOnboardingContent() {
       <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-8">
         <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center">
-            <h1 className="text-4xl font-serif text-primary mb-2">Welcome Home!</h1>
+            <h1 className="text-4xl font-serif text-primary mb-2 font-bold">Welcome Home!</h1>
             <p className="text-muted-foreground">You've successfully joined the property.</p>
           </div>
 
-          <Card className="border-none shadow-lg bg-white overflow-hidden">
-            <div className="h-32 bg-accent/10 flex items-center justify-center">
-              <CheckCircle2 className="w-16 h-16 text-accent animate-bounce" />
+          <Card className="border-none shadow-2xl bg-white overflow-hidden">
+            <div className="h-40 bg-primary/5 flex items-center justify-center">
+              <CheckCircle2 className="w-20 h-20 text-success animate-bounce" />
             </div>
             <CardHeader className="text-center">
-              <CardTitle className="font-serif text-2xl">{propertyInfo.property.address}</CardTitle>
-              <CardDescription>Managed by {propertyInfo.landlordName}</CardDescription>
+              <CardTitle className="font-serif text-3xl font-bold">{propertyInfo.property.address}</CardTitle>
+              <CardDescription className="text-base">Managed by {propertyInfo.landlordName}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl">
-                <Home className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Property Type</p>
-                  <p className="font-medium capitalize">{propertyInfo.property.type.toLowerCase()}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-4 bg-muted/30 rounded-xl">
-                <User className="w-5 h-5 text-primary" />
-                <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider">Landlord</p>
-                  <p className="font-medium">{propertyInfo.landlordName}</p>
-                </div>
-              </div>
-            </CardContent>
             <CardFooter>
               <Button 
-                className="w-full h-12 bg-primary text-white"
+                className="w-full h-12 bg-primary text-white text-lg font-bold"
                 onClick={() => router.push("/dashboard")}
               >
                 Go to My Dashboard
@@ -112,37 +101,58 @@ function TenantOnboardingContent() {
     <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-8">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-serif text-primary mb-2">Join a Property</h1>
-          <p className="text-muted-foreground">Enter the invite code shared by your landlord.</p>
+          <h1 className="text-4xl font-serif text-primary mb-2 font-bold">Find Your Home</h1>
+          <p className="text-muted-foreground italic">Search for your property or enter an invite code.</p>
         </div>
 
-        <Card className="border-none shadow-sm bg-white/50 backdrop-blur-sm">
+        <Card className="border-none shadow-xl bg-white">
           <CardHeader>
-            <CardTitle className="text-2xl font-serif text-center">Enter Invite Code</CardTitle>
+            <CardTitle className="text-xl font-serif">Property Search</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2 text-center">
-              <Label htmlFor="code" className="sr-only">Invite Code</Label>
-              <Input
-                id="code"
-                placeholder="A1B2C3"
-                value={inviteCode}
-                onChange={(e) => setInviteCode(e.target.value.toUpperCase())}
-                className="h-16 text-center text-3xl font-mono tracking-[0.5em] bg-white border-2 focus:border-accent"
-                maxLength={6}
-              />
-              <p className="text-xs text-muted-foreground">
-                The 6-character code can be found in the link shared with you.
-              </p>
+          <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label>Search by Address</Label>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="e.g. Garden View"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                />
+                <Button onClick={handleSearch} disabled={isLoading}>Search</Button>
+              </div>
             </div>
 
-            <Button 
-              className="w-full h-12 bg-accent hover:bg-accent/90 text-white mt-4" 
-              onClick={onVerify}
-              disabled={isLoading || inviteCode.length !== 6}
-            >
-              {isLoading ? "Verifying..." : "Join Property"}
-            </Button>
+            <div className="space-y-2">
+              {searchResults.length > 0 && (
+                <div className="space-y-2 max-h-60 overflow-y-auto pr-2">
+                  {searchResults.map((p) => (
+                    <button
+                      key={p.id}
+                      className="w-full text-left p-3 rounded-xl border border-muted hover:border-primary hover:bg-primary/5 transition-all flex flex-col gap-1 group"
+                      onClick={() => handleJoinByCode(p.inviteCode)}
+                    >
+                      <span className="font-bold text-sm group-hover:text-primary transition-colors">{p.address}</span>
+                      <span className="text-[10px] text-muted-foreground uppercase">Landlord: {p.landlord.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+              <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-muted-foreground font-bold">Or use code</span></div>
+            </div>
+
+            <div className="space-y-2">
+              <Input
+                placeholder="INVITE CODE"
+                className="h-12 text-center font-mono tracking-widest text-xl"
+                maxLength={6}
+                onChange={(e) => e.target.value.length === 6 && handleJoinByCode(e.target.value.toUpperCase())}
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
