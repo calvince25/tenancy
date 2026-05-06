@@ -13,6 +13,7 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        role: { label: "Role", type: "text" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -25,6 +26,10 @@ export const authOptions: NextAuthOptions = {
 
         if (!user || !user.password) {
           throw new Error("Invalid credentials");
+        }
+
+        if (credentials.role && user.role !== credentials.role) {
+          throw new Error(`Invalid credentials. Are you sure you are a ${credentials.role.toLowerCase()}?`);
         }
 
         const isPasswordCorrect = await bcrypt.compare(

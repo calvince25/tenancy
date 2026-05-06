@@ -1,7 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { 
   Wallet, 
@@ -21,6 +23,11 @@ import { cn } from "@/lib/utils";
 export function TenantDashboard({ user, tenancy }: { user: any, tenancy: any }) {
   const isRentPaid = false; // Placeholder logic
   const isRentDueSoon = true; // Placeholder logic
+  const [date, setDate] = useState<Date | undefined>(new Date());
+
+  const currentYear = new Date().getFullYear();
+  const currentMonth = new Date().getMonth();
+  const dueDate = new Date(currentYear, currentMonth, tenancy.rentDueDay);
   
   return (
     <div className="p-6 md:p-10 max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
@@ -67,6 +74,33 @@ export function TenantDashboard({ user, tenancy }: { user: any, tenancy: any }) 
               )}
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Calendar Section */}
+      <Card className="border-none shadow-sm bg-white overflow-hidden">
+        <CardHeader className="bg-muted/30 border-b pb-4">
+          <CardTitle className="font-serif text-lg flex items-center gap-2">
+            <Clock className="w-5 h-5 text-accent" />
+            Rent Schedule
+          </CardTitle>
+          <CardDescription>
+            Your rent is due on the {tenancy.rentDueDay}{tenancy.rentDueDay === 1 ? 'st' : tenancy.rentDueDay === 2 ? 'nd' : tenancy.rentDueDay === 3 ? 'rd' : 'th'} of every month.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-6 flex justify-center">
+          <Calendar
+            mode="single"
+            selected={dueDate}
+            onSelect={setDate}
+            className="rounded-md border shadow-sm"
+            modifiers={{
+              rentDue: dueDate,
+            }}
+            modifiersStyles={{
+              rentDue: { fontWeight: 'bold', backgroundColor: '#e11d48', color: 'white' },
+            }}
+          />
         </CardContent>
       </Card>
 

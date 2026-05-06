@@ -38,6 +38,13 @@ export async function POST(req: Request) {
         where: { role: "LANDLORD" },
       });
 
+      if (landlordCount >= 2) {
+        return NextResponse.json(
+          { message: "Maximum number of landlords reached." },
+          { status: 403 }
+        );
+      }
+
       if (landlordCount === 0) {
         isApproved = true;
         isDefault = true;
