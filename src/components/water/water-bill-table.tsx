@@ -55,7 +55,7 @@ export function WaterBillTable({ bills }: { bills: any[] }) {
               <span className="text-[10px] font-bold text-muted-foreground">KES 200/U</span>
             </TableCell>
             <TableCell>
-              <span className="font-bold text-primary">KES {bill.totalAmount.toLocaleString()}</span>
+              <span className="font-bold text-primary">KES {(bill.totalAmount || 0).toLocaleString()}</span>
             </TableCell>
             <TableCell>
               <Badge className={cn(

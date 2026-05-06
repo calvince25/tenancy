@@ -69,7 +69,7 @@ export function TenantTable({ tenancies }: { tenancies: any[] }) {
                 </div>
               </TableCell>
               <TableCell>
-                <span className="font-bold text-primary">KES {tenancy.monthlyRent.toLocaleString()}</span>
+                <span className="font-bold text-primary">KES {(tenancy.monthlyRent || 0).toLocaleString()}</span>
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">

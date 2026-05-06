@@ -54,14 +54,14 @@ export function RentOverview({ tenancies }: { tenancies: any[] }) {
                 </div>
               </TableCell>
               <TableCell>
-                <span className="font-bold text-primary">KES {tenancy.monthlyRent.toLocaleString()}</span>
+                <span className="font-bold text-primary">KES {(tenancy.monthlyRent || 0).toLocaleString()}</span>
               </TableCell>
               <TableCell>
-                <span className="font-bold text-success">KES {amountPaid.toLocaleString()}</span>
+                <span className="font-bold text-success">KES {(amountPaid || 0).toLocaleString()}</span>
               </TableCell>
               <TableCell>
                 <span className={cn("font-bold", balance > 0 ? "text-destructive" : "text-primary")}>
-                  KES {balance.toLocaleString()}
+                  KES {(balance || 0).toLocaleString()}
                 </span>
               </TableCell>
               <TableCell>
