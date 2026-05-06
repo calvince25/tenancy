@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Home, User, CheckCircle2 } from "lucide-react";
 
-export default function TenantOnboarding() {
+function TenantOnboardingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
@@ -147,5 +147,13 @@ export default function TenantOnboarding() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function TenantOnboarding() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center p-4 sm:p-8"><p>Loading...</p></div>}>
+      <TenantOnboardingContent />
+    </Suspense>
   );
 }
