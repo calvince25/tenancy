@@ -43,6 +43,21 @@ model Property {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
+  units           Unit[]
+  tenancies       Tenancy[]
+}
+
+model Unit {
+  id              String    @id @default(cuid())
+  propertyId      String
+  property        Property  @relation(fields: [propertyId], references: [id])
+  unitNumber      String    // e.g. "A1", "Room 4"
+  type            String    // HOUSE | APARTMENT | ROOM | OTHER
+  status          String    @default("VACANT") // VACANT | OCCUPIED | MAINTENANCE
+  monthlyRent     Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
   tenancies       Tenancy[]
 }
 
@@ -50,6 +65,8 @@ model Tenancy {
   id                  String    @id @default(cuid())
   propertyId          String
   property            Property  @relation(fields: [propertyId], references: [id])
+  unitId              String?
+  unit                Unit?     @relation(fields: [unitId], references: [id])
   landlordId          String
   landlord            User      @relation("LandlordToTenancy", fields: [landlordId], references: [id])
   tenantId            String
@@ -71,6 +88,23 @@ model Tenancy {
   payments            Payment[]
   repairReports       RepairReport[]
   documents           Document[]
+  waterBills          WaterBill[]
+}
+
+model WaterBill {
+  id                  String    @id @default(cuid())
+  tenancyId           String
+  tenancy             Tenancy   @relation(fields: [tenancyId], references: [id])
+  previousReading     Float
+  currentReading      Float
+  unitsUsed           Float
+  ratePerUnit         Float     @default(100)
+  totalAmount         Float
+  month               String    // e.g. "June 2026"
+  status              String    @default("PENDING") // PENDING | PAID
+  dueDate             DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 model Message {
@@ -99,7 +133,9 @@ model Payment {
   tenant              User      @relation(fields: [tenantId], references: [id])
   amount              Float
   currency            String    @default("KES")
+  type                String    @default("RENT") // RENT | WATER | DEPOSIT | OTHER
   period              String    // e.g. "June 2026"
+  method              String    @default("MPESA") // MPESA | CASH | BANK_TRANSFER
   status              String    // PENDING | CONFIRMED | DISPUTED
   paymentReference    String?
   receiptScreenshotUrl String?

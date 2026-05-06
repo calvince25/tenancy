@@ -9,39 +9,58 @@ const paymentSchema = z.object({
   amount: z.number().min(1),
   period: z.string(),
   paymentReference: z.string().optional(),
+  type: z.enum(["RENT", "WATER", "DEPOSIT", "OTHER"]).default("RENT"),
+  method: z.enum(["MPESA", "CASH", "BANK_TRANSFER"]).default("MPESA"),
 });
 
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "TENANT") {
+    if (!session) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await req.json();
-    const { tenancyId, amount, period, paymentReference } = paymentSchema.parse(body);
+    const data = paymentSchema.parse(body);
 
     const payment = await prisma.payment.create({
       data: {
-        tenancyId,
-        tenantId: session.user.id,
-        amount,
-        period,
-        paymentReference,
-        status: "PENDING",
+        tenancyId: data.tenancyId,
+        tenantId: session.user.role === "TENANT" ? session.user.id : body.tenantId,
+        amount: data.amount,
+        period: data.period,
+        type: data.type,
+        method: data.method,
+        paymentReference: data.paymentReference,
+        status: session.user.role === "LANDLORD" ? "CONFIRMED" : "PENDING",
+        confirmedAt: session.user.role === "LANDLORD" ? new Date() : undefined,
       },
     });
 
     // Create a system message in the chat
     await prisma.message.create({
       data: {
-        tenancyId,
+        tenancyId: data.tenancyId,
         senderId: session.user.id,
         senderRole: "SYSTEM",
         type: "SYSTEM",
-        content: `Rent paid for ${period} - KES ${amount.toLocaleString()}. Reference: ${paymentReference || "N/A"}`,
+        content: `${data.type} paid for ${data.period} - KES ${data.amount.toLocaleString()} via ${data.method}. Reference: ${data.paymentReference || "N/A"}`,
       }
     });
+
+    // If it's a water bill payment, we should also mark the latest water bill for that month as paid
+    if (data.type === "WATER") {
+      await prisma.waterBill.updateMany({
+        where: {
+          tenancyId: data.tenancyId,
+          month: data.period,
+          status: "PENDING"
+        },
+        data: {
+          status: "PAID"
+        }
+      });
+    }
 
     return NextResponse.json(payment, { status: 201 });
   } catch (error: any) {
@@ -76,11 +95,32 @@ export async function PATCH(req: Request) {
         senderId: session.user.id,
         senderRole: "SYSTEM",
         type: "SYSTEM",
-        content: `Rent payment for ${payment.period} was ${status.toLowerCase()} by landlord.`,
+        content: `${payment.type} payment for ${payment.period} was ${status.toLowerCase()} by landlord.`,
       }
     });
 
     return NextResponse.json(payment, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+  }
+}
+
+export async function GET(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const tenancyId = searchParams.get("tenancyId");
+
+    const payments = await prisma.payment.findMany({
+      where: tenancyId ? { tenancyId } : { tenantId: session.user.id },
+      orderBy: { submittedAt: "desc" }
+    });
+
+    return NextResponse.json(payments);
   } catch (error) {
     return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
   }
