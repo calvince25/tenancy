@@ -83,12 +83,12 @@ export default async function TenantProfilePage({ params }: { params: { id: stri
             </Button>
           </Link>
           <div className="flex items-center gap-4">
-             <Avatar className="h-16 w-16 border-4 border-white shadow-md">
+              <Avatar className="h-16 w-16 border-4 border-white shadow-md">
                 <AvatarImage src={tenant.profilePhotoUrl || ""} />
                 <AvatarFallback className="bg-primary/5 text-primary font-bold text-xl">
-                  {tenant.name?.substring(0, 2).toUpperCase()}
+                  {tenant.name ? tenant.name.substring(0, 2).toUpperCase() : "TN"}
                 </AvatarFallback>
-             </Avatar>
+              </Avatar>
              <div>
                 <h1 className="text-3xl font-bold text-primary tracking-tight">{tenant.name}</h1>
                 <div className="flex items-center gap-3 mt-1">

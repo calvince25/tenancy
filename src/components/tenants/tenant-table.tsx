@@ -50,7 +50,7 @@ export function TenantTable({ tenancies }: { tenancies: any[] }) {
                   <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
                     <AvatarImage src={tenancy.tenant.profilePhotoUrl || ""} />
                     <AvatarFallback className="bg-primary/5 text-primary font-bold">
-                      {tenancy.tenant.name?.substring(0, 2).toUpperCase()}
+                      {tenancy.tenant.name ? tenancy.tenant.name.substring(0, 2).toUpperCase() : "TN"}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
@@ -74,10 +74,10 @@ export function TenantTable({ tenancies }: { tenancies: any[] }) {
               <TableCell>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-primary">
-                    {tenancy.endDate ? new Date(tenancy.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "Ongoing"}
+                    {typeof window !== 'undefined' ? (tenancy.endDate ? new Date(tenancy.endDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : "Ongoing") : "..."}
                   </span>
                   <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">
-                    Started {new Date(tenancy.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                    Started {typeof window !== 'undefined' ? new Date(tenancy.startDate).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : "..."}
                   </span>
                 </div>
               </TableCell>

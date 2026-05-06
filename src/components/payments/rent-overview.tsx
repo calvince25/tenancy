@@ -77,7 +77,7 @@ export function RentOverview({ tenancies }: { tenancies: any[] }) {
               <TableCell>
                 <div className="flex flex-col">
                   <span className="text-xs font-bold text-primary">
-                    {latestPayment ? new Date(latestPayment.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : "N/A"}
+                    {typeof window !== 'undefined' ? (latestPayment ? new Date(latestPayment.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : "N/A") : "..."}
                   </span>
                   <span className="text-[10px] text-muted-foreground font-medium uppercase">
                     {latestPayment?.method || ""}

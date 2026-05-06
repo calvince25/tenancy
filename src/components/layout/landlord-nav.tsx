@@ -70,7 +70,7 @@ export function LandlordNav() {
             <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
               <AvatarImage src={session?.user?.image || ""} alt={session?.user?.name || "User"} />
               <AvatarFallback className="bg-primary/10 text-primary font-bold">
-                {session?.user?.name?.substring(0, 2).toUpperCase() || "LL"}
+                {session?.user?.name ? session.user.name.substring(0, 2).toUpperCase() : "LL"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col overflow-hidden">

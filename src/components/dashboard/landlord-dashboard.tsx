@@ -95,8 +95,8 @@ export function LandlordDashboard({ user }: { user: any }) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-muted shadow-sm">
             <Calendar className="w-4 h-4 text-primary" />
-            <span className="text-sm font-bold text-primary">
-              {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            <span className="text-sm font-bold text-primary min-w-[120px]">
+              {typeof window !== 'undefined' ? new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '...'}
             </span>
           </div>
           <Button className="bg-primary hover:bg-primary/90 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-primary/20">

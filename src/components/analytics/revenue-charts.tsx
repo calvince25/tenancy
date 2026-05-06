@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { 
   BarChart, 
   Bar, 
@@ -8,11 +9,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer, 
-  Cell,
-  LineChart,
-  Line,
-  AreaChart,
-  Area
 } from "recharts";
 
 const data = [
@@ -31,6 +27,14 @@ const data = [
 ];
 
 export function RevenueCharts() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) return <div className="w-full h-full bg-slate-50/50 animate-pulse rounded-2xl" />;
+
   return (
     <ResponsiveContainer width="100%" height="100%">
       <BarChart

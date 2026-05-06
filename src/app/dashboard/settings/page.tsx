@@ -65,7 +65,7 @@ export default async function SettingsPage() {
                         <Avatar className="h-24 w-24 border-4 border-slate-50 shadow-md">
                            <AvatarImage src={user?.profilePhotoUrl || ""} />
                            <AvatarFallback className="bg-primary/5 text-primary text-2xl font-bold">
-                              {user?.name?.substring(0, 2).toUpperCase()}
+                              {user?.name ? user.name.substring(0, 2).toUpperCase() : "AD"}
                            </AvatarFallback>
                         </Avatar>
                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">

@@ -40,10 +40,10 @@ export function MaintenanceTable({ reports }: { reports: any[] }) {
             <TableCell className="px-8 py-6">
               <div className="flex flex-col">
                 <span className="font-bold text-primary">
-                  {new Date(report.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  {typeof window !== 'undefined' ? new Date(report.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : "..."}
                 </span>
                 <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">
-                   {new Date(report.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                   {typeof window !== 'undefined' ? new Date(report.submittedAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "..."}
                 </span>
               </div>
             </TableCell>
