@@ -2,72 +2,67 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { DashboardHeader } from "@/components/dashboard/dashboard-header";
+import { TenantTable } from "@/components/tenants/tenant-table";
+import { Button } from "@/components/ui/button";
+import { Plus, UserPlus, Download, Filter, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 export default async function TenantsPage() {
   const session = await getServerSession(authOptions);
-  if (!session || session.user.role !== "LANDLORD") redirect("/login");
+  if (!session) redirect("/login");
 
-  const properties = await prisma.property.findMany({
-    where: { landlordId: session.user.id },
+  const tenancies = await prisma.tenancy.findMany({
+    where: { landlordId: session.user.id, status: "ACTIVE" },
     include: {
-      tenancies: {
-        include: {
-          tenant: true,
-          unit: true,
-        }
+      tenant: true,
+      unit: true,
+      property: true,
+      payments: {
+        orderBy: { submittedAt: "desc" },
+        take: 1
+      },
+      waterBills: {
+        orderBy: { createdAt: "desc" },
+        take: 1
       }
-    }
+    },
+    orderBy: { createdAt: "desc" }
   });
 
-  const tenants = properties.flatMap(p => p.tenancies.map(t => ({
-    ...t.tenant,
-    propertyAddress: p.address,
-    unitNumber: t.unit?.unitNumber,
-    tenancyId: t.id
-  })));
-
   return (
-    <div className="p-6 md:p-10 space-y-8">
-      <DashboardHeader 
-        title="Tenants" 
-        description="Manage all tenants across your properties." 
-      />
-      
-      <div className="bg-white rounded-2xl border border-muted-foreground/10 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-muted/30 border-b">
-            <tr>
-              <th className="px-6 py-4 text-sm font-semibold">Tenant Name</th>
-              <th className="px-6 py-4 text-sm font-semibold">Property</th>
-              <th className="px-6 py-4 text-sm font-semibold">Unit</th>
-              <th className="px-6 py-4 text-sm font-semibold">Email</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {tenants.map((tenant: any) => (
-              <tr key={tenant.id} className="hover:bg-muted/5 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="font-medium">{tenant.name}</div>
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{tenant.propertyAddress}</td>
-                <td className="px-6 py-4">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
-                    {tenant.unitNumber || "N/A"}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm text-muted-foreground">{tenant.email}</td>
-              </tr>
-            ))}
-            {tenants.length === 0 && (
-              <tr>
-                <td colSpan={4} className="px-6 py-10 text-center text-muted-foreground italic">
-                  No tenants found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold text-primary tracking-tight">Tenants Portfolio</h1>
+          <p className="text-muted-foreground mt-1 font-medium">Detailed directory of all residents across your properties.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" className="rounded-xl border-muted-foreground/10 font-bold gap-2 h-11 px-6">
+            <Download className="w-4 h-4" /> Export CSV
+          </Button>
+          <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl font-bold gap-2 h-11 px-6 shadow-lg shadow-primary/20">
+            <UserPlus className="w-4 h-4" /> Add New Tenant
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input 
+            placeholder="Search by name, phone, or unit number..." 
+            className="pl-10 h-12 rounded-xl border-muted-foreground/10 bg-white focus:ring-primary shadow-sm"
+          />
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" className="h-12 rounded-xl border-muted-foreground/10 bg-white px-6 font-bold gap-2">
+            <Filter className="w-4 h-4" /> Status: All
+          </Button>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-[2rem] shadow-sm border border-muted/40 overflow-hidden">
+        <TenantTable tenancies={tenancies} />
       </div>
     </div>
   );

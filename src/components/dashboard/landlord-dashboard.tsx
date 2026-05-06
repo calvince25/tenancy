@@ -1,295 +1,412 @@
 "use client";
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { useState, useMemo } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
   Building2, 
   Users, 
-  ChevronRight,
-  Plus,
-  ArrowLeft,
   Droplets,
-  Receipt,
-  LayoutDashboard,
-  Trash2,
-  ArrowUpRight
+  CreditCard,
+  Wrench,
+  TrendingUp,
+  Plus,
+  ArrowUpRight,
+  Clock,
+  AlertCircle,
+  FileText,
+  Search,
+  Calendar,
+  Download
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { UnitManagement } from "./unit-management";
-import { PropertyForm } from "./property-form";
-import { RevenueChart } from "./revenue-chart";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
-export function LandlordDashboard({ user: initialUser }: { user: any }) {
+export function LandlordDashboard({ user }: { user: any }) {
   const router = useRouter();
-  const [user, setUser] = useState(initialUser);
-  const [activeTab, setActiveTab] = useState<"DASHBOARD" | "PROPERTY_DETAIL">("DASHBOARD");
-  const [selectedProperty, setSelectedProperty] = useState<any>(null);
-  const [isPropertyModalOpen, setIsPropertyModalOpen] = useState(false);
-  const [editingProperty, setEditingProperty] = useState<any>(null);
 
-  const totalProperties = user.properties.length;
-  const activeTenants = user.properties.reduce((acc: number, p: any) => acc + p.tenancies.length, 0);
+  // Calculate Statistics
+  const stats = useMemo(() => {
+    let totalUnits = 0;
+    let occupiedUnits = 0;
+    let totalRentDue = 0;
+    let totalRentCollected = 0;
+    let totalWaterDue = 0;
+    let totalWaterCollected = 0;
+    let openMaintenance = 0;
+    let urgentMaintenance = 0;
+    let totalExpenses = 0;
 
-  const revenueData = [
-    { month: "Jan", amount: 45000 },
-    { month: "Feb", amount: 52000 },
-    { month: "Mar", amount: 48000 },
-    { month: "Apr", amount: 61000 },
-    { month: "May", amount: 59000 },
-    { month: "Jun", amount: 0 },
-    { month: "Jul", amount: 0 },
-    { month: "Aug", amount: 0 },
-    { month: "Sep", amount: 0 },
-    { month: "Oct", amount: 0 },
-    { month: "Nov", amount: 0 },
-    { month: "Dec", amount: 0 },
-  ];
+    user.properties.forEach((property: any) => {
+      property.units.forEach((unit: any) => {
+        totalUnits++;
+        if (unit.status === "OCCUPIED") occupiedUnits++;
+        
+        unit.tenancies.forEach((tenancy: any) => {
+          totalRentDue += tenancy.monthlyRent || 0;
+          
+          tenancy.payments.forEach((p: any) => {
+            if (p.type === "RENT" && p.status === "CONFIRMED") totalRentCollected += p.amount;
+            if (p.type === "WATER" && p.status === "CONFIRMED") totalWaterCollected += p.amount;
+          });
 
-  const navigateToProperty = (property: any) => {
-    setSelectedProperty(property);
-    setActiveTab("PROPERTY_DETAIL");
-  };
+          tenancy.waterBills.forEach((w: any) => {
+            totalWaterDue += w.totalAmount;
+          });
 
-  async function handleDeleteProperty(id: string) {
-    if (!confirm("Are you sure you want to delete this property? All units and records will be lost.")) return;
-    try {
-      const res = await fetch(`/api/properties?id=${id}`, { method: "DELETE" });
-      if (res.ok) {
-        toast.success("Property deleted");
-        window.location.reload();
-      } else {
-        toast.error("Failed to delete property");
-      }
-    } catch (error) {
-      toast.error("Something went wrong");
-    }
-  }
+          tenancy.repairReports.forEach((r: any) => {
+            if (r.status !== "RESOLVED") {
+              openMaintenance++;
+              if (r.urgency === "EMERGENCY" || r.urgency === "URGENT") urgentMaintenance++;
+            }
+            if (r.status === "RESOLVED" && r.cost) totalExpenses += r.cost;
+          });
+        });
+      });
+    });
 
-  const renderContent = () => {
-    if (activeTab === "PROPERTY_DETAIL" && selectedProperty) {
-      return (
-        <div className="space-y-8 animate-in slide-in-from-right duration-500">
-          <div className="flex items-center justify-between">
-            <Button variant="ghost" onClick={() => setActiveTab("DASHBOARD")} className="gap-2">
-              <ArrowLeft className="w-4 h-4" /> Back to Dashboard
-            </Button>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="text-destructive border-destructive/20 hover:bg-destructive/5 gap-2"
-                onClick={() => handleDeleteProperty(selectedProperty.id)}
-              >
-                <Trash2 className="w-4 h-4" /> Delete
-              </Button>
-              <Button 
-                size="sm" 
-                className="gap-2"
-                onClick={() => {
-                  setEditingProperty(selectedProperty);
-                  setIsPropertyModalOpen(true);
-                }}
-              >
-                <Plus className="w-4 h-4" /> Edit
-              </Button>
-            </div>
-          </div>
+    const vacantUnits = totalUnits - occupiedUnits;
+    const occupancyRate = totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0;
+    const outstandingRent = totalRentDue - totalRentCollected;
+    const outstandingWater = totalWaterDue - totalWaterCollected;
+    const netRevenue = (totalRentCollected + totalWaterCollected) - totalExpenses;
 
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <div className="w-full lg:w-1/3 space-y-6">
-              <Card className="overflow-hidden border-none shadow-sm bg-white">
-                <div className="h-48 bg-muted relative group">
-                  {selectedProperty.photoUrl ? (
-                    <img src={selectedProperty.photoUrl} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/10 bg-gradient-to-br from-primary/5 to-primary/20">
-                      <Building2 className="w-24 h-24" />
-                    </div>
-                  )}
-                </div>
-                <CardHeader>
-                  <CardTitle className="font-serif text-2xl font-bold">{selectedProperty.address}</CardTitle>
-                  <div className="flex gap-2 mt-2">
-                    <Badge className="bg-primary/5 text-primary border-none font-bold">{selectedProperty.type}</Badge>
-                    <Badge variant="outline" className="font-bold">{selectedProperty.tenancies.length} Units</Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                    <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest mb-1">Invite Code</p>
-                    <p className="text-3xl font-mono font-bold text-primary tracking-widest">{selectedProperty.inviteCode}</p>
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-bold flex items-center gap-2 text-primary">
-                      <Building2 className="w-4 h-4" /> Property Gallery
-                    </h4>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="aspect-square bg-muted rounded-xl overflow-hidden border border-muted-foreground/10 relative group">
-                          <img 
-                            src={`https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop`} 
-                            alt="" 
-                            className="w-full h-full object-cover opacity-60 grayscale group-hover:opacity-100 group-hover:grayscale-0 transition-all cursor-pointer" 
-                          />
-                        </div>
-                      ))}
-                      <button className="aspect-square bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/20 flex items-center justify-center hover:bg-muted hover:border-primary/40 transition-all group">
-                        <Plus className="w-6 h-6 text-muted-foreground/30 group-hover:text-primary/40" />
-                      </button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-            <div className="w-full lg:w-2/3">
-              <UnitManagement propertyId={selectedProperty.id} />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="space-y-8 animate-in fade-in duration-500">
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-serif text-primary font-bold">Landlord Center</h1>
-            <p className="text-muted-foreground">Premium property management at your fingertips.</p>
-          </div>
-          <div className="flex gap-3">
-            <Button variant="outline" className="gap-2 h-12 px-6 border-muted-foreground/20 font-bold" onClick={() => router.push("/dashboard/payments")}>
-              <Receipt className="w-4 h-4" />
-              Payments
-            </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-white gap-2 h-12 px-6 font-bold shadow-lg shadow-primary/20" onClick={() => setIsPropertyModalOpen(true)}>
-              <Plus className="w-4 h-4" />
-              Add Property
-            </Button>
-          </div>
-        </header>
-
-        {/* Stats Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card 
-            className="border-none shadow-sm bg-white hover:shadow-md transition-all cursor-pointer group"
-            onClick={() => router.push("/dashboard/properties")}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="p-3 bg-primary/5 rounded-xl text-primary group-hover:scale-110 transition-transform">
-                  <Building2 className="w-6 h-6" />
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-muted-foreground/20" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Properties</p>
-                <p className="text-3xl font-bold text-primary">{totalProperties}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card 
-            className="border-none shadow-sm bg-white hover:shadow-md transition-all cursor-pointer group"
-            onClick={() => router.push("/dashboard/tenants")}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="p-3 bg-success/5 rounded-xl text-success group-hover:scale-110 transition-transform">
-                  <Users className="w-6 h-6" />
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-muted-foreground/20" />
-              </div>
-              <div className="mt-4">
-                <p className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Active Tenants</p>
-                <p className="text-3xl font-bold text-success">{activeTenants}</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card 
-            className="border-none shadow-sm bg-white hover:shadow-md transition-all cursor-pointer group col-span-1 lg:col-span-2"
-            onClick={() => router.push("/dashboard/payments")}
-          >
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between px-2 mb-2">
-                <p className="text-xs font-bold text-primary flex items-center gap-2 uppercase tracking-widest">
-                  <Receipt className="w-4 h-4" /> Revenue Trend
-                </p>
-                <Badge className="bg-primary/5 text-primary border-none font-bold">2026</Badge>
-              </div>
-              <RevenueChart data={revenueData} />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Property Cards */}
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-serif text-primary font-bold">Quick Access</h2>
-            <Button variant="link" className="text-primary font-bold" onClick={() => router.push("/dashboard/properties")}>
-              View All Properties
-            </Button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {user.properties.map((property: any) => (
-              <Card 
-                key={property.id} 
-                className="border-none shadow-sm hover:shadow-2xl transition-all bg-white overflow-hidden group cursor-pointer hover:-translate-y-1"
-                onClick={() => navigateToProperty(property)}
-              >
-                <div className="h-48 bg-muted relative overflow-hidden">
-                  {property.photoUrl ? (
-                    <img src={property.photoUrl} alt="" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted-foreground/5 bg-gradient-to-br from-primary/5 to-primary/10">
-                      <Building2 className="w-20 h-20" />
-                    </div>
-                  )}
-                  <div className="absolute top-4 right-4 z-10">
-                    <Badge className={cn(
-                      "border-none px-4 py-1 font-bold shadow-sm",
-                      property.tenancies.length > 0 ? "bg-success text-white" : "bg-white text-muted-foreground"
-                    )}>
-                      {property.tenancies.length > 0 ? "Occupied" : "Vacant"}
-                    </Badge>
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-90 transition-opacity" />
-                  <div className="absolute bottom-5 left-5 text-white z-10">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80 mb-1">{property.type}</p>
-                    <h3 className="text-xl font-serif font-bold leading-tight">{property.address}</h3>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-        </section>
-      </div>
-    );
-  };
+    return {
+      totalUnits, occupiedUnits, vacantUnits, occupancyRate,
+      totalRentDue, totalRentCollected, outstandingRent,
+      totalWaterDue, totalWaterCollected, outstandingWater,
+      openMaintenance, urgentMaintenance,
+      netRevenue
+    };
+  }, [user]);
 
   return (
-    <div className="animate-in fade-in duration-500 min-h-screen bg-background/50">
-      <main className="max-w-7xl mx-auto">
-        {renderContent()}
-      </main>
+    <div className="p-6 md:p-10 space-y-8 max-w-[1600px] mx-auto animate-in fade-in duration-700">
+      {/* Header Section */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold text-primary tracking-tight">Overview</h1>
+          <p className="text-muted-foreground mt-1 text-lg font-medium">
+            Good Morning, <span className="text-primary font-bold">{user.name?.split(' ')[0] || "Landlord"}!</span>
+          </p>
+          <p className="text-sm text-muted-foreground">It's a great day to stay ahead of your property management goals.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-muted shadow-sm">
+            <Calendar className="w-4 h-4 text-primary" />
+            <span className="text-sm font-bold text-primary">
+              {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </span>
+          </div>
+          <Button className="bg-primary hover:bg-primary/90 text-white gap-2 h-11 px-6 rounded-xl font-bold shadow-lg shadow-primary/20">
+            <Download className="w-4 h-4" />
+            Export Report
+          </Button>
+        </div>
+      </header>
 
-      {isPropertyModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="w-full max-w-lg">
-            <PropertyForm 
-              initialData={editingProperty}
-              onClose={() => {
-                setIsPropertyModalOpen(false);
-                setEditingProperty(null);
-              }}
-              onSuccess={() => window.location.reload()}
-            />
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
+        {/* Left Column: Main Content */}
+        <div className="xl:col-span-3 space-y-8">
+          
+          {/* Top KPI Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="border-none shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Property Summary</p>
+                    <Building2 className="w-5 h-5 text-primary/40" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-3xl font-bold text-primary">{stats.totalUnits}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Total Units</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-success flex items-center gap-1">
+                          <TrendingUp className="w-3 h-3" /> 3.0%
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Occupancy</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-muted-foreground">Occupancy Rate</span>
+                        <span className="text-primary">{stats.occupancyRate.toFixed(1)}%</span>
+                      </div>
+                      <Progress value={stats.occupancyRate} className="h-2 bg-muted" />
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-slate-50 px-6 py-3 border-t border-muted/50 flex justify-between items-center group-hover:bg-primary/5 transition-colors">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{stats.occupiedUnits} Occupied | {stats.vacantUnits} Vacant</span>
+                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold text-primary p-0 hover:bg-transparent">VIEW MORE</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Rent Collection</p>
+                    <CreditCard className="w-5 h-5 text-secondary/40" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-2xl font-bold text-primary">KES {(stats.totalRentCollected/1000).toFixed(1)}k</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Collected</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-destructive flex items-center gap-1 justify-end">
+                          KES {(stats.outstandingRent/1000).toFixed(1)}k
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Outstanding</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-muted-foreground">Collection Rate</span>
+                        <span className="text-secondary">{stats.totalRentDue > 0 ? ((stats.totalRentCollected/stats.totalRentDue)*100).toFixed(1) : 0}%</span>
+                      </div>
+                      <Progress 
+                        value={stats.totalRentDue > 0 ? (stats.totalRentCollected/stats.totalRentDue)*100 : 0} 
+                        className="h-2 bg-muted" 
+                        indicatorClassName="bg-secondary"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-slate-50 px-6 py-3 border-t border-muted/50 flex justify-between items-center group-hover:bg-secondary/5 transition-colors">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Target: KES {(stats.totalRentDue/1000).toFixed(1)}k</span>
+                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold text-secondary p-0 hover:bg-transparent">VIEW MORE</Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-none shadow-md overflow-hidden group hover:shadow-xl transition-all duration-300">
+              <CardContent className="p-0">
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Maintenance</p>
+                    <Wrench className="w-5 h-5 text-accent/40" />
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-3xl font-bold text-primary">{stats.openMaintenance}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase mt-1">Open Requests</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-bold text-warning flex items-center gap-1">
+                          <AlertCircle className="w-3 h-3" /> {stats.urgentMaintenance} Urgent
+                        </p>
+                        <p className="text-[10px] text-muted-foreground uppercase">Needs Attention</p>
+                      </div>
+                    </div>
+                    <div className="pt-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden flex">
+                          <div className="bg-destructive w-1/3" />
+                          <div className="bg-warning w-1/3" />
+                          <div className="bg-primary w-1/3" />
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-2 text-[9px] font-bold uppercase tracking-tighter text-muted-foreground">
+                        <span>Urgent</span>
+                        <span>Normal</span>
+                        <span>Low</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-slate-50 px-6 py-3 border-t border-muted/50 flex justify-between items-center group-hover:bg-accent/5 transition-colors">
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Avg Response: 2.4 Days</span>
+                  <Button variant="ghost" size="sm" className="h-6 text-[10px] font-bold text-accent p-0 hover:bg-transparent">VIEW MORE</Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Button 
+              variant="outline" 
+              className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-primary hover:bg-primary/5 transition-all group"
+              onClick={() => router.push("/dashboard/tenants")}
+            >
+              <div className="p-2 bg-primary/5 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
+                <Plus className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-tight">Add Tenant</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-secondary hover:bg-secondary/5 transition-all group"
+              onClick={() => router.push("/dashboard/payments")}
+            >
+              <div className="p-2 bg-secondary/5 rounded-xl group-hover:bg-secondary group-hover:text-white transition-colors">
+                <CreditCard className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-tight">Record Payment</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-accent hover:bg-accent/5 transition-all group"
+              onClick={() => router.push("/dashboard/water")}
+            >
+              <div className="p-2 bg-accent/5 rounded-xl group-hover:bg-accent group-hover:text-white transition-colors">
+                <Droplets className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-tight">Log Water</span>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-warning hover:bg-warning/5 transition-all group"
+              onClick={() => router.push("/dashboard/maintenance")}
+            >
+              <div className="p-2 bg-warning/5 rounded-xl group-hover:bg-warning group-hover:text-white transition-colors">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-tight">New Request</span>
+            </Button>
+          </div>
+
+          {/* Properties Preview Section */}
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-muted/40">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
+                  <Building2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-primary">Portfolio Overview</h2>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Top performing properties</p>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                className="text-primary font-bold gap-2 hover:bg-primary/5 rounded-xl"
+                onClick={() => router.push("/dashboard/properties")}
+              >
+                View Portfolio <ArrowUpRight className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {user.properties.slice(0, 4).map((property: any) => (
+                <div key={property.id} className="group relative bg-slate-50/50 rounded-2xl overflow-hidden border border-muted/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 cursor-pointer">
+                  <div className="flex h-40">
+                    <div className="w-1/3 relative overflow-hidden">
+                      <img 
+                        src={property.photoUrl || "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=400&h=400&fit=crop"} 
+                        alt="" 
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+                      />
+                      <div className="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    </div>
+                    <div className="w-2/3 p-5 flex flex-col justify-between">
+                      <div>
+                        <div className="flex justify-between items-start">
+                          <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.2em]">{property.type}</span>
+                          <span className="text-[10px] font-bold text-success uppercase">Active</span>
+                        </div>
+                        <h3 className="text-lg font-bold text-primary mt-1 leading-tight">{property.address}</h3>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex -space-x-2">
+                          {[1,2,3].map(i => (
+                            <div key={i} className="w-6 h-6 rounded-full border-2 border-white bg-slate-200" />
+                          ))}
+                          <div className="w-6 h-6 rounded-full border-2 border-white bg-primary/10 flex items-center justify-center text-[8px] font-bold text-primary">+{property.units.length}</div>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase">Yield</p>
+                          <p className="text-xs font-bold text-primary">8.4%</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Right Column: Sidebar / Activity */}
+        <div className="space-y-8">
+          {/* Revenue Overview Card */}
+          <Card className="border-none shadow-xl card-gradient-1 text-white rounded-[2rem] overflow-hidden group">
+            <CardContent className="p-8">
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] opacity-80">Net Revenue</p>
+                <TrendingUp className="w-5 h-5 opacity-80 group-hover:scale-110 transition-transform" />
+              </div>
+              <div className="space-y-1 mb-8">
+                <p className="text-4xl font-bold">KES {(stats.netRevenue/1000).toFixed(1)}k</p>
+                <p className="text-xs opacity-70 flex items-center gap-2">
+                   <TrendingUp className="w-3 h-3" /> +12.5% from last month
+                </p>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="opacity-70">Outstanding Payments</span>
+                  <span className="font-bold">KES {(stats.outstandingRent + stats.outstandingWater).toLocaleString()}</span>
+                </div>
+                <div className="w-full h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div className="bg-white h-full w-[85%]" />
+                </div>
+                <div className="flex items-center justify-between text-xs pt-2">
+                  <div className="flex flex-col">
+                    <span className="text-[10px] opacity-70 uppercase font-bold">Total Expenses</span>
+                    <span className="font-bold">KES {stats.totalExpenses.toLocaleString()}</span>
+                  </div>
+                  <div className="w-12 h-12 flex items-center justify-center">
+                    {/* Tiny visual chart or icon */}
+                    <TrendingUp className="w-8 h-8 opacity-20" />
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Activity Feed */}
+          <div className="bg-white rounded-[2rem] p-8 shadow-sm border border-muted/40">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-bold text-primary">Recent Activities</h3>
+              <Clock className="w-4 h-4 text-muted-foreground" />
+            </div>
+            
+            <div className="space-y-6">
+              {[
+                { type: 'MAINTENANCE', title: 'Leaking Sink - Unit 4B', time: '2 hours ago', icon: Wrench, color: 'text-warning bg-warning/5' },
+                { type: 'PAYMENT', title: 'Rent Received - John Doe', time: '5 hours ago', icon: CreditCard, color: 'text-success bg-success/5' },
+                { type: 'WATER', title: 'Water Bill Logged - Unit 12', time: 'Yesterday', icon: Droplets, color: 'text-secondary bg-secondary/5' },
+                { type: 'LEASE', title: 'Lease Expiring - Unit 8', time: '2 days ago', icon: FileText, color: 'text-primary bg-primary/5' },
+              ].map((activity, i) => (
+                <div key={i} className="flex gap-4 group cursor-pointer">
+                  <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110", activity.color)}>
+                    <activity.icon className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-xs font-bold text-primary truncate leading-tight group-hover:text-primary/70 transition-colors">{activity.title}</span>
+                    <span className="text-[10px] text-muted-foreground mt-0.5">{activity.time}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <Button variant="ghost" className="w-full mt-8 text-primary font-bold text-xs hover:bg-primary/5 rounded-xl border border-muted/50">
+              VIEW ALL ACTIVITY
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
