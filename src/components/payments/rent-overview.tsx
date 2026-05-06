@@ -50,7 +50,7 @@ export function RentOverview({ tenancies }: { tenancies: any[] }) {
               <TableCell className="px-8 py-6">
                 <div className="flex flex-col">
                   <span className="font-bold text-primary">{tenancy.tenant.name}</span>
-                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">Unit {tenancy.unit.unitNumber} • {tenancy.property.address.substring(0, 20)}...</span>
+                  <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">Unit {tenancy.unit?.unitNumber || "N/A"} • {tenancy.property.address.substring(0, 20)}...</span>
                 </div>
               </TableCell>
               <TableCell>

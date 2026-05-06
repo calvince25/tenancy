@@ -62,7 +62,7 @@ export function TenantTable({ tenancies }: { tenancies: any[] }) {
               <TableCell>
                 <div className="flex flex-col">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-primary">Unit {tenancy.unit.unitNumber}</span>
+                    <span className="font-bold text-primary">Unit {tenancy.unit?.unitNumber || "N/A"}</span>
                     <Badge variant="outline" className="text-[9px] h-4 font-bold border-muted-foreground/20">{tenancy.property.type}</Badge>
                   </div>
                   <span className="text-[10px] text-muted-foreground truncate max-w-[150px]">{tenancy.property.address}</span>
