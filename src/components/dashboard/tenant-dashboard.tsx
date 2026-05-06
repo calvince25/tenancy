@@ -11,7 +11,9 @@ import {
   ChevronRight,
   ArrowUpRight,
   Clock,
-  CheckCircle2
+  CheckCircle2,
+  User,
+  AlertCircle
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";

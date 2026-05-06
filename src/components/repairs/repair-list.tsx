@@ -91,12 +91,14 @@ export function RepairList({ reports: initialReports, userRole, tenancyId }: any
     <div className="space-y-6">
       {userRole === "TENANT" && (
         <Dialog open={isAdding} onOpenChange={setIsAdding}>
-          <DialogTrigger asChild>
-            <Button className="bg-accent hover:bg-accent/90 text-white gap-2 h-12 w-full sm:w-auto">
-              <Plus className="w-4 h-4" />
-              Report a Problem
-            </Button>
-          </DialogTrigger>
+          <DialogTrigger
+            render={
+              <Button className="bg-accent hover:bg-accent/90 text-white gap-2 h-12 w-full sm:w-auto">
+                <Plus className="w-4 h-4" />
+                Report a Problem
+              </Button>
+            }
+          />
           <DialogContent className="sm:max-w-md bg-white">
             <DialogHeader>
               <DialogTitle className="font-serif">New Repair Report</DialogTitle>
@@ -106,7 +108,7 @@ export function RepairList({ reports: initialReports, userRole, tenancyId }: any
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Category</Label>
-                  <Select onValueChange={(v) => setNewReport({ ...newReport, category: v })} defaultValue="PLUMBING">
+                  <Select onValueChange={(v) => v && setNewReport({ ...newReport, category: v })} defaultValue="PLUMBING">
                     <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Category" />
                     </SelectTrigger>
@@ -121,7 +123,7 @@ export function RepairList({ reports: initialReports, userRole, tenancyId }: any
                 </div>
                 <div className="space-y-2">
                   <Label>Urgency</Label>
-                  <Select onValueChange={(v: any) => setNewReport({ ...newReport, urgency: v })} defaultValue="SOON">
+                  <Select onValueChange={(v: any) => v && setNewReport({ ...newReport, urgency: v })} defaultValue="SOON">
                     <SelectTrigger className="bg-white">
                       <SelectValue placeholder="Urgency" />
                     </SelectTrigger>

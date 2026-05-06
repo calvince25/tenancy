@@ -29,8 +29,8 @@ import { Copy, Check, Share2 } from "lucide-react";
 const propertySchema = z.object({
   address: z.string().min(5, "Address must be at least 5 characters"),
   type: z.enum(["HOUSE", "APARTMENT", "ROOM", "OTHER"]),
-  monthlyRent: z.string().transform((v) => parseFloat(v)),
-  rentDueDay: z.string().transform((v) => parseInt(v)),
+  monthlyRent: z.number().min(1, "Monthly rent must be at least 1"),
+  rentDueDay: z.number().min(1).max(28),
 });
 
 type PropertyValues = z.infer<typeof propertySchema>;
@@ -201,7 +201,7 @@ export default function LandlordOnboarding() {
                     id="rentDueDay"
                     type="number"
                     placeholder="1"
-                    {...register("rentDueDay")}
+                    {...register("rentDueDay", { valueAsNumber: true })}
                     className="bg-white"
                   />
                   {errors.rentDueDay && (
@@ -216,7 +216,7 @@ export default function LandlordOnboarding() {
                   id="monthlyRent"
                   type="number"
                   placeholder="45000"
-                  {...register("monthlyRent")}
+                  {...register("monthlyRent", { valueAsNumber: true })}
                   className="bg-white"
                 />
                 {errors.monthlyRent && (

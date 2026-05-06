@@ -68,12 +68,14 @@ export function PaymentClaimForm({ tenancy }: any) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-accent hover:bg-accent/90 text-white gap-2 h-12">
-          <Wallet className="w-4 h-4" />
-          I've Paid Rent
-        </Button>
-      </DialogTrigger>
+      <DialogTrigger
+        render={
+          <Button className="bg-accent hover:bg-accent/90 text-white gap-2 h-12">
+            <Wallet className="w-4 h-4" />
+            I've Paid Rent
+          </Button>
+        }
+      />
       <DialogContent className="sm:max-w-md bg-white">
         <DialogHeader>
           <DialogTitle className="font-serif">Report Rent Payment</DialogTitle>
@@ -90,7 +92,7 @@ export function PaymentClaimForm({ tenancy }: any) {
 
           <div className="space-y-2">
             <Label>Payment Period</Label>
-            <Select onValueChange={(v) => setForm({ ...form, period: v })} defaultValue={form.period}>
+            <Select onValueChange={(v) => v && setForm({ ...form, period: v })} defaultValue={form.period}>
               <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Select month" />
               </SelectTrigger>
