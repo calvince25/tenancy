@@ -86,19 +86,27 @@ export default function RegisterPage() {
 
         <Card className="border border-white/20 shadow-xl bg-white/10 backdrop-blur-md text-white">
           <CardHeader>
-            <CardTitle className="text-2xl font-serif text-center">Create an account</CardTitle>
+            <CardTitle className="text-2xl font-serif text-center">
+              Register as {role === "LANDLORD" ? "Landlord" : "Tenant"}
+            </CardTitle>
             <CardDescription className="text-center text-white/70">
-              Choose your role and fill in your details to get started.
+              Fill in your details to create your {role.toLowerCase()} account.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="LANDLORD" onValueChange={(v) => setRole(v as any)} className="w-full mb-6">
-              <TabsList className="grid w-full grid-cols-2 bg-black/20 p-1 border border-white/10">
-                <TabsTrigger value="LANDLORD" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/70">
+              <TabsList className="grid w-full grid-cols-2 bg-black/40 p-1 border border-white/20">
+                <TabsTrigger 
+                  value="LANDLORD" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white/70 transition-all duration-300 font-bold"
+                >
                   <Home className="w-4 h-4 mr-2" />
                   Landlord
                 </TabsTrigger>
-                <TabsTrigger value="TENANT" className="data-[state=active]:bg-white/20 data-[state=active]:text-white text-white/70">
+                <TabsTrigger 
+                  value="TENANT" 
+                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white/70 transition-all duration-300 font-bold"
+                >
                   <Key className="w-4 h-4 mr-2" />
                   Tenant
                 </TabsTrigger>
