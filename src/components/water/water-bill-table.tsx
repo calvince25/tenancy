@@ -33,7 +33,7 @@ export function WaterBillTable({ bills }: { bills: any[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {bills.map((bill) => (
+        {bills?.map((bill) => (
           <TableRow key={bill.id} className="group hover:bg-slate-50/30 border-muted/30 transition-colors">
             <TableCell className="px-8 py-6">
               <div className="flex flex-col">

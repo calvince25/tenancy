@@ -39,9 +39,9 @@ export function TenantTable({ tenancies }: { tenancies: any[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tenancies.map((tenancy) => {
-          const latestPayment = tenancy.payments[0];
-          const latestWater = tenancy.waterBills[0];
+        {tenancies?.map((tenancy) => {
+          const latestPayment = tenancy.payments?.[0];
+          const latestWater = tenancy.waterBills?.[0];
           
           return (
             <TableRow key={tenancy.id} className="group hover:bg-slate-50/30 border-muted/30 transition-colors cursor-pointer" onClick={() => router.push(`/dashboard/tenants/${tenancy.tenant.id}`)}>

@@ -35,7 +35,7 @@ export function MaintenanceTable({ reports }: { reports: any[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {reports.map((report) => (
+        {reports?.map((report) => (
           <TableRow key={report.id} className="group hover:bg-slate-50/30 border-muted/30 transition-colors">
             <TableCell className="px-8 py-6">
               <div className="flex flex-col">

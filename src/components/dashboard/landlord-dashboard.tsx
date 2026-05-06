@@ -38,24 +38,24 @@ export function LandlordDashboard({ user }: { user: any }) {
     let urgentMaintenance = 0;
     let totalExpenses = 0;
 
-    user.properties.forEach((property: any) => {
-      property.units.forEach((unit: any) => {
+    user.properties?.forEach((property: any) => {
+      property.units?.forEach((unit: any) => {
         totalUnits++;
         if (unit.status === "OCCUPIED") occupiedUnits++;
         
-        unit.tenancies.forEach((tenancy: any) => {
+        unit.tenancies?.forEach((tenancy: any) => {
           totalRentDue += tenancy.monthlyRent || 0;
           
-          tenancy.payments.forEach((p: any) => {
+          tenancy.payments?.forEach((p: any) => {
             if (p.type === "RENT" && p.status === "CONFIRMED") totalRentCollected += p.amount;
             if (p.type === "WATER" && p.status === "CONFIRMED") totalWaterCollected += p.amount;
           });
 
-          tenancy.waterBills.forEach((w: any) => {
+          tenancy.waterBills?.forEach((w: any) => {
             totalWaterDue += w.totalAmount;
           });
 
-          tenancy.repairReports.forEach((r: any) => {
+          tenancy.repairReports?.forEach((r: any) => {
             if (r.status !== "RESOLVED") {
               openMaintenance++;
               if (r.urgency === "EMERGENCY" || r.urgency === "URGENT") urgentMaintenance++;
@@ -298,7 +298,7 @@ export function LandlordDashboard({ user }: { user: any }) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {user.properties.slice(0, 4).map((property: any) => (
+              {user.properties?.slice(0, 4).map((property: any) => (
                 <div key={property.id} className="group relative bg-slate-50/50 rounded-2xl overflow-hidden border border-muted/30 hover:shadow-xl hover:shadow-primary/5 transition-all duration-500 cursor-pointer">
                   <div className="flex h-40">
                     <div className="w-1/3 relative overflow-hidden">

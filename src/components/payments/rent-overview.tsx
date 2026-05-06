@@ -37,10 +37,10 @@ export function RentOverview({ tenancies }: { tenancies: any[] }) {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {tenancies.map((tenancy) => {
-          const latestPayment = tenancy.payments[0];
-          const amountPaid = tenancy.payments.filter((p: any) => p.type === "RENT" && p.status === "CONFIRMED").reduce((acc: number, p: any) => acc + p.amount, 0);
-          const balance = Math.max(0, tenancy.monthlyRent - amountPaid);
+        {tenancies?.map((tenancy) => {
+          const latestPayment = tenancy.payments?.[0];
+          const amountPaid = tenancy.payments?.filter((p: any) => p.type === "RENT" && p.status === "CONFIRMED").reduce((acc: number, p: any) => acc + p.amount, 0) || 0;
+          const balance = Math.max(0, (tenancy.monthlyRent || 0) - amountPaid);
           
           let status = "PAID";
           if (balance > 0) status = amountPaid > 0 ? "PARTIAL" : "OVERDUE";

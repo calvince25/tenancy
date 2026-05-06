@@ -36,14 +36,14 @@ export function PropertiesList({ properties }: { properties: any[] }) {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      {properties.map((property: any) => {
-        const totalUnits = property.units.length;
-        const occupiedUnits = property.units.filter((u: any) => u.status === "OCCUPIED").length;
+      {properties?.map((property: any) => {
+        const totalUnits = property.units?.length || 0;
+        const occupiedUnits = property.units?.filter((u: any) => u.status === "OCCUPIED").length || 0;
         const occupancyRate = totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0;
-        const monthlyRevenue = property.units.reduce((acc: number, u: any) => {
-          const rent = u.tenancies.find((t: any) => t.status === "ACTIVE")?.monthlyRent || 0;
+        const monthlyRevenue = property.units?.reduce((acc: number, u: any) => {
+          const rent = u.tenancies?.find((t: any) => t.status === "ACTIVE")?.monthlyRent || 0;
           return acc + rent;
-        }, 0);
+        }, 0) || 0;
 
         return (
           <Card key={property.id} className="border-none shadow-sm hover:shadow-2xl transition-all duration-500 bg-white rounded-[2rem] overflow-hidden group cursor-pointer" onClick={() => router.push(`/dashboard/properties/${property.id}`)}>

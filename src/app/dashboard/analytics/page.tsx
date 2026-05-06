@@ -16,6 +16,7 @@ import {
   Droplets
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 export default async function AnalyticsPage() {
   const session = await getServerSession(authOptions);
@@ -29,8 +30,8 @@ export default async function AnalyticsPage() {
     include: { payments: { where: { status: "CONFIRMED" } } }
   });
 
-  const totalMonthlyRent = tenancies.reduce((acc, t) => acc + t.monthlyRent, 0);
-  const totalRevenueCollected = tenancies.reduce((acc, t) => acc + t.payments.reduce((pAcc, p) => pAcc + p.amount, 0), 0);
+  const totalMonthlyRent = tenancies?.reduce((acc, t) => acc + (t.monthlyRent || 0), 0) || 0;
+  const totalRevenueCollected = tenancies?.reduce((acc, t) => acc + (t.payments?.reduce((pAcc, p) => pAcc + (p.amount || 0), 0) || 0), 0) || 0;
 
   return (
     <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
