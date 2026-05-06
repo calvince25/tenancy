@@ -87,7 +87,7 @@ export function TenantDashboard({ user, tenancy }: { user: any, tenancy: any }) 
                 <p className="text-sm uppercase tracking-widest font-semibold text-muted-foreground">
                   {isRentPaid ? "Rent Paid" : "Rent Due"}
                 </p>
-                <p className="text-4xl font-bold">KES {tenancy.monthlyRent.toLocaleString()}</p>
+                <p className="text-4xl font-bold">KES {(tenancy.monthlyRent || 0).toLocaleString()}</p>
                 <p className="text-muted-foreground text-sm">
                   For {currentMonth}
                 </p>
@@ -132,7 +132,7 @@ export function TenantDashboard({ user, tenancy }: { user: any, tenancy: any }) 
                   Water Bill
                 </p>
                 <p className="text-4xl font-bold text-blue-700">
-                  KES {currentMonthWater ? currentMonthWater.totalAmount.toLocaleString() : "0"}
+                  KES {currentMonthWater ? (currentMonthWater.totalAmount || 0).toLocaleString() : "0"}
                 </p>
                 <p className="text-muted-foreground text-sm">
                   {currentMonthWater ? `${currentMonthWater.unitsUsed} units used` : "No reading yet"}
@@ -194,7 +194,7 @@ export function TenantDashboard({ user, tenancy }: { user: any, tenancy: any }) 
                   </div>
                   <div className="flex items-center gap-4">
                     <div className="text-right">
-                      <p className="font-bold">KES {payment.amount.toLocaleString()}</p>
+                      <p className="font-bold">KES {(payment.amount || 0).toLocaleString()}</p>
                       <Badge variant="outline" className={cn(
                         "text-[10px] h-4",
                         payment.status === "CONFIRMED" ? "text-success border-success/20 bg-success/5" : "text-amber-500 border-amber-200 bg-amber-50"

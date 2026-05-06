@@ -120,7 +120,7 @@ export default async function TenantProfilePage({ params }: { params: { id: stri
                 <AlertTriangle className="w-5 h-5 opacity-80 group-hover:scale-110 transition-transform" />
               </div>
               <div className="space-y-1 mb-8">
-                <p className="text-4xl font-bold">KES {totalOwed.toLocaleString()}</p>
+                <p className="text-4xl font-bold">KES {(totalOwed || 0).toLocaleString()}</p>
                 <p className="text-xs opacity-70 flex items-center gap-2">
                    Includes Rent & Water Arrears
                 </p>
@@ -129,11 +129,11 @@ export default async function TenantProfilePage({ params }: { params: { id: stri
               <div className="space-y-4">
                 <div className="flex items-center justify-between text-xs">
                   <span className="opacity-70">Rent Arrears</span>
-                  <span className="font-bold">KES {Math.max(0, rentArrears).toLocaleString()}</span>
+                  <span className="font-bold">KES {(Math.max(0, rentArrears) || 0).toLocaleString()}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="opacity-70">Water Arrears</span>
-                  <span className="font-bold">KES {Math.max(0, waterArrears).toLocaleString()}</span>
+                  <span className="font-bold">KES {(Math.max(0, waterArrears) || 0).toLocaleString()}</span>
                 </div>
               </div>
               
@@ -183,15 +183,15 @@ export default async function TenantProfilePage({ params }: { params: { id: stri
              <div className="space-y-3">
                 <div className="flex justify-between text-sm">
                    <span className="text-muted-foreground">Start Date</span>
-                   <span className="font-bold">{new Date(activeTenancy.startDate).toLocaleDateString('en-GB')}</span>
+                    <span className="font-bold">{typeof window !== 'undefined' ? new Date(activeTenancy.startDate).toLocaleDateString('en-GB') : "..."}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                    <span className="text-muted-foreground">End Date</span>
-                   <span className="font-bold">{activeTenancy.endDate ? new Date(activeTenancy.endDate).toLocaleDateString('en-GB') : "Ongoing"}</span>
+                    <span className="font-bold">{activeTenancy.endDate ? (typeof window !== 'undefined' ? new Date(activeTenancy.endDate).toLocaleDateString('en-GB') : "...") : "Ongoing"}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                    <span className="text-muted-foreground">Deposit Paid</span>
-                   <span className="font-bold text-success">KES {activeTenancy.depositAmount?.toLocaleString() || 0}</span>
+                    <span className="font-bold text-success">KES {(activeTenancy.depositAmount || 0).toLocaleString()}</span>
                 </div>
              </div>
           </div>
@@ -231,11 +231,11 @@ export default async function TenantProfilePage({ params }: { params: { id: stri
                           </div>
                           <div>
                              <p className="font-bold text-primary">{payment.period || "Current Month"}</p>
-                             <p className="text-[10px] text-muted-foreground font-medium uppercase">{new Date(payment.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })} • {payment.method}</p>
+                             <p className="text-[10px] text-muted-foreground font-medium uppercase">{typeof window !== 'undefined' ? new Date(payment.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : "..."} • {payment.method}</p>
                           </div>
                        </div>
                        <div className="text-right">
-                          <p className="text-lg font-bold text-primary">KES {payment.amount.toLocaleString()}</p>
+                          <p className="text-lg font-bold text-primary">KES {(payment.amount || 0).toLocaleString()}</p>
                           <Badge variant="outline" className={cn(
                              "text-[8px] font-bold border-none",
                              payment.status === "CONFIRMED" ? "bg-success/10 text-success" : "bg-warning/10 text-warning"

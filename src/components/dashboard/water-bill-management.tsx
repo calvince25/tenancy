@@ -124,7 +124,7 @@ export function WaterBillManagement({ tenancyId, unitNumber }: { tenancyId: stri
             {currReading && (
               <div className="mt-4 p-3 bg-blue-500/10 rounded-lg flex justify-between items-center text-blue-700 text-sm font-medium">
                 <span>Units: {(parseFloat(currReading) - parseFloat(prevReading)).toFixed(2)}</span>
-                <span>Total: KES {((parseFloat(currReading) - parseFloat(prevReading)) * parseFloat(rate)).toLocaleString()}</span>
+                <span>Total: KES {((parseFloat(currReading) - parseFloat(prevReading)) * parseFloat(rate) || 0).toLocaleString()}</span>
               </div>
             )}
           </CardContent>
@@ -151,7 +151,7 @@ export function WaterBillManagement({ tenancyId, unitNumber }: { tenancyId: stri
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold text-blue-600">KES {bill.totalAmount.toLocaleString()}</p>
+                <p className="font-bold text-blue-600">KES {(bill.totalAmount || 0).toLocaleString()}</p>
                 <p className={`text-[10px] font-bold uppercase ${bill.status === 'PAID' ? 'text-success' : 'text-amber-500'}`}>
                   {bill.status}
                 </p>

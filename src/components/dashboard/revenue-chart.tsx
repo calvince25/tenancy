@@ -15,7 +15,7 @@ export function RevenueChart({ data }: { data: any[] }) {
               style={{ height: `${barHeight}px` }}
             >
               <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-primary text-white text-[10px] px-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                {d.amount.toLocaleString()}
+                {(d.amount || 0).toLocaleString()}
               </div>
             </div>
             <span className="text-[8px] text-muted-foreground mt-1 uppercase font-bold">{d.month}</span>
