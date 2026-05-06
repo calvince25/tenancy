@@ -120,8 +120,9 @@ export default async function AnalyticsPage() {
                      </div>
                   </div>
                </div>
-               <div className="flex-1 w-full">
-                  <RevenueCharts />
+               <div className="flex-1 w-full bg-slate-50/50 rounded-2xl flex items-center justify-center">
+                  <span className="text-muted-foreground font-bold">Revenue Data Visualization (Temporarily Disabled)</span>
+                  {/* <RevenueCharts /> */}
                </div>
             </div>
 

@@ -82,7 +82,7 @@ export function LandlordDashboard({ user }: { user: any }) {
   }, [user]);
 
   return (
-    <div className="p-6 md:p-10 space-y-8 max-w-[1600px] mx-auto animate-in fade-in duration-700">
+    <div className="p-6 md:p-10 space-y-8 max-w-[1600px] mx-auto">
       {/* Header Section */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>

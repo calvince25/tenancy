@@ -79,7 +79,7 @@ export default function LandlordOnboarding() {
     }
   }
 
-  const inviteLink = createdProperty 
+  const inviteLink = createdProperty
     ? `${window.location.origin}/join?code=${createdProperty.inviteCode}`
     : "";
 
@@ -116,9 +116,9 @@ export default function LandlordOnboarding() {
                     <div className="flex-1 bg-muted/50 h-12 flex items-center px-4 rounded-lg font-mono text-xl tracking-widest justify-center">
                       {createdProperty.inviteCode}
                     </div>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
+                    <Button
+                      variant="outline"
+                      size="icon"
                       className="h-12 w-12"
                       onClick={() => copyToClipboard(createdProperty.inviteCode)}
                     >
@@ -127,8 +127,8 @@ export default function LandlordOnboarding() {
                   </div>
                 </div>
 
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full h-12 flex gap-2"
                   onClick={() => copyToClipboard(inviteLink)}
                 >
@@ -136,7 +136,7 @@ export default function LandlordOnboarding() {
                   Copy Invite Link
                 </Button>
 
-                <Button 
+                <Button
                   className="w-full h-12 bg-primary text-white"
                   onClick={() => router.push("/dashboard")}
                 >
@@ -234,3 +234,4 @@ export default function LandlordOnboarding() {
     </div>
   );
 }
+
