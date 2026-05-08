@@ -15,7 +15,8 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
-  CheckCircle
+  CheckCircle,
+  Eye
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -198,73 +199,74 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
              </div>
            ) : (
              filteredReports.map((report) => (
-                <div key={report.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1 min-w-0 break-words">
+                <div key={report.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1 flex flex-col h-full min-w-0 break-words">
                   {report.status === "RESOLVED" ? (
                     <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
                         <CheckCircle className="w-32 h-32 text-emerald-600" />
                     </div>
                   ) : (
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-10 transition-opacity -rotate-12">
-                        <Wrench className="w-32 h-32 text-primary" />
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
+                        <Wrench className="w-32 h-32 text-amber-600" />
                     </div>
                   )}
                   
-                  <div className="flex justify-between items-start mb-6">
-                    <div className="flex items-center gap-4">
-                       <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-primary/5 group-hover:text-primary transition-colors">
-                          <Wrench className="w-6 h-6" />
-                       </div>
-                       <div>
-                          <p className="font-black text-slate-900">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy?.tenant?.name || "Unknown Tenant"}</p>
-                       </div>
+                  <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex justify-between items-start mb-6">
+                        <div className="flex flex-col gap-2">
+                           <Badge className={cn(
+                                "w-fit rounded-full px-3 py-1 text-[9px] font-black tracking-widest border-none shadow-sm",
+                                report.urgency === 'EMERGENCY' ? 'bg-red-50 text-red-600' : 
+                                report.urgency === 'URGENT' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
+                           )}>
+                               {report.urgency}
+                           </Badge>
+                           <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-1">
+                               <Clock className="w-3 h-3" /> {new Date(report.createdAt).toLocaleDateString()}
+                           </p>
+                        </div>
+                        <div className="text-right">
+                           <p className="font-black text-slate-900">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</p>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy?.tenant?.name || "Unknown Tenant"}</p>
+                        </div>
                     </div>
-                    <Badge className={cn(
-                        "rounded-full px-3 py-1 text-[9px] font-black tracking-widest border-none shadow-sm",
-                        report.urgency === 'EMERGENCY' ? 'bg-red-50 text-red-600' : 
-                        report.urgency === 'URGENT' ? 'bg-orange-50 text-orange-600' : 'bg-blue-50 text-blue-600'
-                    )}>
-                        {report.urgency}
-                    </Badge>
-                  </div>
 
-                  <div className="space-y-2 mb-6">
-                    <h4 className="text-lg font-bold text-slate-800 leading-snug">{report.issue}</h4>
-                    <p className="text-sm text-slate-500 line-clamp-3">{report.description}</p>
-                  </div>
-
-                  <div className="flex items-center justify-between pt-6 border-t border-slate-50">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{new Date(report.createdAt).toLocaleDateString()}</span>
-                        {report.status === "RESOLVED" && report.cost && (
-                            <span className="text-xs font-black text-emerald-600 mt-1">Cost: KES {report.cost.toLocaleString()}</span>
-                        )}
+                    <div className="space-y-2 mb-6 flex-grow">
+                        <h4 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors">{report.issue}</h4>
+                        <p className="text-sm text-slate-500 line-clamp-3">{report.description}</p>
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                        {report.status !== "RESOLVED" ? (
-                            <Button 
-                                size="sm" 
-                                className="rounded-xl font-bold text-[10px] h-8 bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-200"
-                                onClick={() => {
-                                    setSelectedReport(report);
-                                    setIsResolveModalOpen(true);
-                                }}
-                            >
-                                Mark Resolved
+
+                    <div className="flex items-center justify-between pt-6 border-t border-slate-50">
+                        <div className="flex flex-col">
+                            {report.status === "RESOLVED" && report.cost && (
+                                <span className="text-xs font-black text-emerald-600 mt-1">Cost: KES {report.cost.toLocaleString()}</span>
+                            )}
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            {report.status !== "RESOLVED" ? (
+                                <Button 
+                                    size="sm" 
+                                    className="rounded-xl font-bold text-[10px] h-8 bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-200"
+                                    onClick={() => {
+                                        setSelectedReport(report);
+                                        setIsResolveModalOpen(true);
+                                    }}
+                                >
+                                    Mark Resolved
+                                </Button>
+                            ) : (
+                                <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 text-[9px] font-black tracking-widest">
+                                    RESOLVED
+                                </Badge>
+                            )}
+                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50">
+                                <Trash2 className="w-4 h-4" />
                             </Button>
-                        ) : (
-                            <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 text-[9px] font-black tracking-widest">
-                                RESOLVED
-                            </Badge>
-                        )}
-                        <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50">
-                            <Trash2 className="w-4 h-4" />
-                        </Button>
+                        </div>
                     </div>
                   </div>
-               </div>
-             ))
+                </div>
+              ))
            )}
         </div>
       </div>

@@ -26,10 +26,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 export function TenantTable({ 
   tenancies, 
   propertyId,
+  onEdit,
   onDelete
 }: { 
   tenancies: any[]; 
   propertyId: string;
+  onEdit: (tenancy: any) => void;
   onDelete: (tenancy: any) => void;
 }) {
   const router = useRouter();
@@ -113,10 +115,11 @@ export function TenantTable({
                   >
                     <Eye className="w-4 h-4" />
                   </Button>
-                  <Button 
+                   <Button 
                     variant="ghost" 
                     size="icon" 
                     className="h-8 w-8 rounded-lg hover:bg-amber-50 text-slate-400 hover:text-amber-600"
+                    onClick={() => onEdit(tenancy)}
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>

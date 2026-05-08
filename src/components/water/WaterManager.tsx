@@ -42,8 +42,9 @@ interface WaterManagerProps {
   waterRate: number;
 }
 
-export function WaterManager({ tenancies, waterBills, propertyId, propertyName, waterRate }: WaterManagerProps) {
+export function WaterManager({ tenancies, waterBills, propertyId, propertyName, waterRate: propWaterRate }: WaterManagerProps) {
   const router = useRouter();
+  const waterRate = propWaterRate || 200;
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedBill, setSelectedBill] = useState<any>(null);

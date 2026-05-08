@@ -41,6 +41,7 @@ interface TenantManagerProps {
 export function TenantManager({ initialTenancies, vacantUnits, propertyId, propertyName }: TenantManagerProps) {
   const router = useRouter();
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTenancy, setSelectedTenancy] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -93,6 +94,32 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
 
       toast.success("Tenant added and unit updated");
       setIsAddModalOpen(false);
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateTenant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const res = await fetch(`/api/tenants?id=${selectedTenancy.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          monthlyRent: parseFloat(formData.monthlyRent),
+          depositAmount: formData.depositAmount ? parseFloat(formData.depositAmount) : 0,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to update tenant");
+
+      toast.success("Tenant updated successfully");
+      setIsEditModalOpen(false);
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
@@ -171,6 +198,20 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
         <TenantTable 
             tenancies={filteredTenancies} 
             propertyId={propertyId}
+            onEdit={(t) => {
+                setSelectedTenancy(t);
+                setFormData({
+                    name: t.tenant?.name || "",
+                    phone: t.tenant?.phone || "",
+                    nationalId: t.tenant?.nationalId || "",
+                    unitId: t.unitId,
+                    monthlyRent: t.monthlyRent.toString(),
+                    depositAmount: t.depositAmount?.toString() || "",
+                    startDate: t.startDate?.split('T')[0] || "",
+                    endDate: t.endDate?.split('T')[0] || "",
+                });
+                setIsEditModalOpen(true);
+            }}
             onDelete={(t) => {
                 setSelectedTenancy(t);
                 setIsDeleteModalOpen(true);
@@ -325,6 +366,42 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
               {isLoading ? "Deleting..." : "Confirm Removal"}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Edit Tenant Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[600px] rounded-[2rem] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Edit Tenant Details</DialogTitle>
+            <DialogDescription>Modify tenancy information for {formData.name}.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateTenant} className="space-y-6 py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name" className="font-bold">Full Name</Label>
+                <Input id="edit-name" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-phone" className="font-bold">Phone Number</Label>
+                <Input id="edit-phone" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required className="rounded-xl" />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Monthly Rent</Label>
+                <Input type="number" value={formData.monthlyRent} onChange={(e) => setFormData({...formData, monthlyRent: e.target.value})} required className="rounded-xl" />
+              </div>
+              <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Lease End Date</Label>
+                <Input type="date" value={formData.endDate} onChange={(e) => setFormData({...formData, endDate: e.target.value})} className="rounded-xl" />
+              </div>
+            </div>
+            <DialogFooter className="pt-4">
+              <Button type="submit" disabled={isLoading} className="w-full rounded-xl font-bold h-12 shadow-lg shadow-primary/20">
+                {isLoading ? "Updating..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
         </DialogContent>
       </Dialog>
     </div>
