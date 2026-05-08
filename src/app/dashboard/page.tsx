@@ -2,46 +2,43 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import { LandlordDashboard } from "@/components/dashboard/landlord-dashboard";
+import { PropertyList } from "@/components/dashboard/property-list";
 
-export default async function DashboardPage() {
+export default async function LandlordDashboard() {
   const session = await getServerSession(authOptions);
-
-  if (!session) {
-    redirect("/login");
-  }
+  if (!session) redirect("/login");
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    include: {
-      properties: {
-        include: {
-          units: {
-            include: {
-              tenancies: {
-                where: { status: "ACTIVE" },
-                include: { 
-                  tenant: true,
-                  payments: true,
-                  waterBills: true,
-                  repairReports: true
-                }
-              }
-            }
-          }
-        }
-      }
-    }
+    select: { name: true }
   });
 
-  if (!user) {
-    redirect("/login");
-  }
+  const properties = await prisma.property.findMany({
+    where: { landlordId: session.user.id },
+    include: {
+      units: { select: { id: true } },
+      tenancies: {
+        where: { status: "ACTIVE" },
+        select: { id: true }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
 
-  // Redirect to onboarding if no property exists yet
-  if (user.properties.length === 0) {
-    redirect("/onboarding/landlord");
-  }
+  // Serialize for client component (remove non-serializable types)
+  const serialized = properties.map(p => ({
+    id: p.id,
+    address: p.address,
+    type: p.type,
+    photoUrl: p.photoUrl ?? null,
+    units: p.units,
+    tenancies: p.tenancies,
+  }));
 
-  return <LandlordDashboard user={user} />;
+  return (
+    <PropertyList
+      properties={serialized}
+      landlordName={user?.name ?? "Landlord"}
+    />
+  );
 }

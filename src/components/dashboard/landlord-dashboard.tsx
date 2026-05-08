@@ -23,7 +23,7 @@ import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
 
-export function LandlordDashboard({ user }: { user: any }) {
+export function LandlordDashboard({ user, propertyId }: { user: any; propertyId: string }) {
   const router = useRouter();
 
   // Calculate Statistics
@@ -238,7 +238,7 @@ export function LandlordDashboard({ user }: { user: any }) {
             <Button 
               variant="outline" 
               className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-primary hover:bg-primary/5 transition-all group"
-              onClick={() => router.push("/dashboard/tenants")}
+              onClick={() => router.push(`/dashboard/${propertyId}/tenants`)}
             >
               <div className="p-2 bg-primary/5 rounded-xl group-hover:bg-primary group-hover:text-white transition-colors">
                 <Plus className="w-5 h-5" />
@@ -248,7 +248,7 @@ export function LandlordDashboard({ user }: { user: any }) {
             <Button 
               variant="outline" 
               className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-secondary hover:bg-secondary/5 transition-all group"
-              onClick={() => router.push("/dashboard/payments")}
+              onClick={() => router.push(`/dashboard/${propertyId}/payments`)}
             >
               <div className="p-2 bg-secondary/5 rounded-xl group-hover:bg-secondary group-hover:text-white transition-colors">
                 <CreditCard className="w-5 h-5" />
@@ -258,7 +258,7 @@ export function LandlordDashboard({ user }: { user: any }) {
             <Button 
               variant="outline" 
               className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-accent hover:bg-accent/5 transition-all group"
-              onClick={() => router.push("/dashboard/water")}
+              onClick={() => router.push(`/dashboard/${propertyId}/water`)}
             >
               <div className="p-2 bg-accent/5 rounded-xl group-hover:bg-accent group-hover:text-white transition-colors">
                 <Droplets className="w-5 h-5" />
@@ -268,7 +268,7 @@ export function LandlordDashboard({ user }: { user: any }) {
             <Button 
               variant="outline" 
               className="h-24 rounded-2xl flex flex-col gap-2 border-muted-foreground/10 hover:border-warning hover:bg-warning/5 transition-all group"
-              onClick={() => router.push("/dashboard/maintenance")}
+              onClick={() => router.push(`/dashboard/${propertyId}/maintenance`)}
             >
               <div className="p-2 bg-warning/5 rounded-xl group-hover:bg-warning group-hover:text-white transition-colors">
                 <Wrench className="w-5 h-5" />
@@ -292,7 +292,7 @@ export function LandlordDashboard({ user }: { user: any }) {
               <Button 
                 variant="ghost" 
                 className="text-primary font-bold gap-2 hover:bg-primary/5 rounded-xl"
-                onClick={() => router.push("/dashboard/properties")}
+                onClick={() => router.push("/dashboard")}
               >
                 View Portfolio <ArrowUpRight className="w-4 h-4" />
               </Button>

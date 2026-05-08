@@ -19,13 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
-import { Home, Key } from "lucide-react";
+import { Building2 } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -37,7 +31,6 @@ type LoginValues = z.infer<typeof loginSchema>;
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = useState<"LANDLORD" | "TENANT">("LANDLORD");
 
   const {
     register,
@@ -54,7 +47,7 @@ export default function LoginPage() {
         redirect: false,
         email: data.email,
         password: data.password,
-        role: role,
+        role: "LANDLORD",
       });
 
       if (result?.error) {
@@ -75,92 +68,90 @@ export default function LoginPage() {
   }
 
   return (
-    <div 
-      className="flex min-h-screen items-center justify-center p-4 sm:p-8 bg-cover bg-center"
-      style={{ backgroundImage: "url('/login-bg.png')" }}
+    <div
+      className="flex min-h-screen items-center justify-center p-4 sm:p-8 bg-cover bg-center relative"
+      style={{ backgroundImage: "url('https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2073&auto=format&fit=crop')" }}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm z-0"></div>
-      <div className="w-full max-w-md space-y-8 z-10">
-        <div className="text-center text-white">
-          <h1 className="text-4xl font-serif mb-2">NestSync</h1>
-          <p className="text-white/80">Your home. Sorted.</p>
+      <div className="absolute inset-0 bg-[#0F172A]/80 backdrop-blur-sm z-0"></div>
+      <div className="w-full max-w-md space-y-8 z-10 animate-in fade-in zoom-in duration-700">
+        <div className="text-center text-white space-y-4">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white/10 rounded-[2rem] backdrop-blur-xl border border-white/20 shadow-2xl mb-4 group hover:bg-white/20 transition-all duration-500">
+            <Building2 className="w-10 h-10 text-white group-hover:scale-110 transition-transform duration-500" />
+          </div>
+          <h1 className="text-5xl font-bold tracking-tight">Renzo</h1>
+          <p className="text-white/60 font-medium tracking-wide uppercase text-[10px]">Landlord Administration Portal</p>
         </div>
 
-        <Card className="border border-white/20 shadow-xl bg-white/10 backdrop-blur-md text-white">
-          <CardHeader>
-            <CardTitle className="text-2xl font-serif text-center">
-              Log in as {role === "LANDLORD" ? "Landlord" : "Tenant"}
-            </CardTitle>
-            <CardDescription className="text-center text-white/70">
-              Enter your email and password to access your {role.toLowerCase()} dashboard.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="LANDLORD" onValueChange={(v) => setRole(v as any)} className="w-full mb-6">
-              <TabsList className="grid w-full grid-cols-2 bg-black/40 p-1 border border-white/20">
-                <TabsTrigger 
-                  value="LANDLORD" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white/70 transition-all duration-300 font-bold"
-                >
-                  <Home className="w-4 h-4 mr-2" />
-                  Landlord
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="TENANT" 
-                  className="data-[state=active]:bg-white data-[state=active]:text-black text-white/70 transition-all duration-300 font-bold"
-                >
-                  <Key className="w-4 h-4 mr-2" />
-                  Tenant
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-white">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="john@example.com"
-                  {...register("email")}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/50 focus-visible:ring-white/30"
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-300">{errors.email.message}</p>
-                )}
-              </div>
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-white">Password</Label>
-                  <Link href="#" className="text-xs text-white/70 hover:text-white hover:underline">
-                    Forgot password?
-                  </Link>
+        <Card className="border-white/10 shadow-2xl bg-white/5 backdrop-blur-2xl text-white rounded-[2.5rem] overflow-hidden p-2">
+          <div className="bg-white/5 p-8 rounded-[2rem]">
+            <CardHeader className="px-0 pt-0">
+              <CardTitle className="text-3xl font-bold text-center tracking-tight">
+                Welcome Back
+              </CardTitle>
+              <CardDescription className="text-center text-white/50 font-medium">
+                Access your property management suite
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="px-0">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-white/70 text-xs font-bold uppercase tracking-widest ml-1">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="name@example.com"
+                    {...register("email")}
+                    className="h-14 bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-2xl focus:ring-primary focus:border-primary transition-all duration-300"
+                  />
+                  {errors.email && (
+                    <p className="text-xs text-red-400 font-medium mt-1 ml-1">{errors.email.message}</p>
+                  )}
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  {...register("password")}
-                  className="bg-white/10 border-white/20 text-white focus-visible:ring-white/30"
-                />
-                {errors.password && (
-                  <p className="text-xs text-red-300">{errors.password.message}</p>
-                )}
-              </div>
-              <Button type="submit" className="w-full h-11 bg-white text-black hover:bg-white/90 font-medium" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Log in"}
-              </Button>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between ml-1">
+                    <Label htmlFor="password" className="text-white/70 text-xs font-bold uppercase tracking-widest">Password</Label>
+                    <Link href="#" className="text-[10px] text-white/40 hover:text-white font-bold uppercase tracking-widest transition-colors">
+                      Forgot?
+                    </Link>
+                  </div>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    {...register("password")}
+                    className="h-14 bg-white/5 border-white/10 text-white placeholder:text-white/20 rounded-2xl focus:ring-primary focus:border-primary transition-all duration-300"
+                  />
+                  {errors.password && (
+                    <p className="text-xs text-red-400 font-medium mt-1 ml-1">{errors.password.message}</p>
+                  )}
+                </div>
+                <Button type="submit" className="w-full h-14 bg-white text-[#0F172A] hover:bg-white/90 rounded-2xl font-bold text-lg shadow-xl shadow-white/5 transition-all duration-300 active:scale-[0.98]" disabled={isLoading}>
+                  {isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <span className="w-4 h-4 border-2 border-[#0F172A]/30 border-t-[#0F172A] rounded-full animate-spin" />
+                      Authenticating...
+                    </span>
+                  ) : "Sign In to Portal"}
+                </Button>
+              </form>
+            </CardContent>
+          </div>
 
-            </form>
-          </CardContent>
-          <CardFooter className="flex justify-center border-t border-white/10 p-6 mt-4">
-            <p className="text-sm text-white/70">
-              Don't have an account?{" "}
-              <Link href="/register" className="text-white font-medium hover:underline">
-                Sign up
+          <CardFooter className="flex justify-center p-6 bg-white/5 border-t border-white/5 rounded-b-[2rem]">
+            <p className="text-sm text-white/40 font-medium">
+              Don&apos;t have an account?{" "}
+              <Link href="/register" className="text-white font-bold hover:underline underline-offset-4">
+                Register as Landlord
               </Link>
             </p>
           </CardFooter>
         </Card>
+
+        <div className="text-center pt-4">
+          <Link href="/" className="text-white/30 hover:text-white/60 transition-colors text-[10px] font-bold uppercase tracking-[0.2em]">
+            &larr; Back to Public Site
+          </Link>
+        </div>
       </div>
     </div>
   );
