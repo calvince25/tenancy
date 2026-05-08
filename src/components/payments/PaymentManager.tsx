@@ -57,8 +57,8 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
   };
 
   const filteredTenancies = tenancies.filter(t => 
-    t.tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    (t.tenant?.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (t.unit?.unitNumber?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -160,7 +160,7 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
                             <tr key={t.id} className="hover:bg-slate-50/30 transition-colors group">
                                 <td className="px-8 py-5">
                                     <p className="font-bold text-slate-900 text-sm">{t.tenant.name}</p>
-                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Unit {t.unit.unitNumber}</p>
+                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Unit {t.unit?.unitNumber || "N/A"}</p>
                                 </td>
                                 <td className="px-8 py-5">
                                     <p className="font-bold text-slate-700 text-sm">KES {t.monthlyRent.toLocaleString()}</p>

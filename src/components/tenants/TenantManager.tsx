@@ -125,9 +125,9 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
   };
 
   const filteredTenancies = initialTenancies.filter(t => 
-    t.tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.unit?.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    t.tenant.phone.includes(searchQuery)
+    (t.tenant?.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (t.unit?.unitNumber?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (t.tenant?.phone || "").includes(searchQuery)
   );
 
   return (

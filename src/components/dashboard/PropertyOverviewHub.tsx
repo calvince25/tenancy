@@ -19,11 +19,14 @@ import {
   Calendar,
   Download,
   Activity,
-  LayoutDashboard
+  LayoutDashboard,
+  BadgeCheck,
+  UserPlus
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 
 interface PropertyOverviewHubProps {
   property: any;
@@ -266,4 +269,3 @@ export function PropertyOverviewHub({ property }: PropertyOverviewHubProps) {
   );
 }
 
-import { UserPlus } from "lucide-react";

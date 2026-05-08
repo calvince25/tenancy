@@ -132,9 +132,9 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
   };
 
   const filteredReports = reports.filter(r => 
-    r.tenancy.tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.tenancy.unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    r.issue.toLowerCase().includes(searchQuery.toLowerCase())
+    (r?.tenancy?.tenant?.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (r?.tenancy?.unit?.unitNumber?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (r?.issue?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   const stats = {
@@ -211,7 +211,7 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                           <Wrench className="w-6 h-6" />
                        </div>
                        <div>
-                          <p className="font-black text-slate-900">Unit {report.tenancy.unit.unitNumber}</p>
+                          <p className="font-black text-slate-900">Unit {report.tenancy.unit?.unitNumber || "N/A"}</p>
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy.tenant.name}</p>
                        </div>
                     </div>
@@ -284,7 +284,7 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                 <SelectContent className="rounded-2xl">
                     {tenancies.map(t => (
                         <SelectItem key={t.id} value={t.id}>
-                            Unit {t.unit.unitNumber} - {t.tenant.name}
+                            Unit {t.unit?.unitNumber || "N/A"} - {t.tenant.name}
                         </SelectItem>
                     ))}
                 </SelectContent>

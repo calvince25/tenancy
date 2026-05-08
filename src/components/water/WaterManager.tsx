@@ -114,8 +114,8 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
   };
 
   const filteredBills = waterBills.filter(b => 
-    b.tenancy.tenant.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b.tenancy.unit.unitNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    (b.tenancy?.tenant?.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (b.tenancy?.unit?.unitNumber?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -167,7 +167,7 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
                     {filteredBills.map((bill) => (
                         <tr key={bill.id} className="hover:bg-slate-50/30 transition-colors group">
                             <td className="px-8 py-5">
-                                <p className="font-bold text-slate-900 text-sm">Unit {bill.tenancy.unit.unitNumber}</p>
+                                <p className="font-bold text-slate-900 text-sm">Unit {bill.tenancy.unit?.unitNumber || "N/A"}</p>
                                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{bill.tenancy.tenant.name}</p>
                             </td>
                             <td className="px-8 py-5 text-center">
@@ -231,7 +231,7 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
                 <SelectContent className="rounded-2xl">
                     {tenancies.map(t => (
                         <SelectItem key={t.id} value={t.id}>
-                            Unit {t.unit.unitNumber} - {t.tenant.name}
+                            Unit {t.unit?.unitNumber || "N/A"} - {t.tenant.name}
                         </SelectItem>
                     ))}
                 </SelectContent>

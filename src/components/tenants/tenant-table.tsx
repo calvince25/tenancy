@@ -16,7 +16,8 @@ import {
   Pencil, 
   CheckCircle2, 
   AlertCircle,
-  Clock
+  Clock,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
