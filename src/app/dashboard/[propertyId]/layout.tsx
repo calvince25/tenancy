@@ -27,9 +27,7 @@ export default async function PropertyLayout({
   return (
     <div className="flex min-h-screen bg-background overflow-x-hidden">
       {/* Navigation Sidebar */}
-      <div className="hidden md:block flex-shrink-0">
-        <LandlordNav />
-      </div>
+      <LandlordNav />
 
       {/* Main Content Area */}
       <main className="flex-1 flex flex-col min-h-screen min-w-0">
