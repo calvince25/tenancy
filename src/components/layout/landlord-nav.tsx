@@ -50,7 +50,7 @@ export function LandlordNav() {
   return (
     <>
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col w-72 bg-[#0F172A] text-white min-h-screen border-r border-white/5 shadow-2xl sticky top-0">
+      <aside className="hidden md:flex flex-col w-72 flex-shrink-0 bg-[#0F172A] text-white min-h-screen border-r border-white/5 shadow-2xl sticky top-0">
         {/* Logo */}
         <div className="p-8 flex items-center gap-3">
           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#0F172A] font-black text-xl shadow-xl shadow-white/10">
