@@ -3,51 +3,67 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { MaintenanceManager } from "@/components/maintenance/MaintenanceManager";
+import { Wrench } from "lucide-react";
 
 export default async function PropertyMaintenancePage({ params }: { params: { propertyId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const property = await prisma.property.findUnique({
-    where: { id: params.propertyId },
-    select: { address: true, landlordId: true }
-  });
+  try {
+    const property = await prisma.property.findUnique({
+      where: { id: params.propertyId },
+      select: { address: true, landlordId: true }
+    });
 
-  if (!property || property.landlordId !== session.user.id) {
-    redirect("/dashboard");
-  }
-
-  const tenancies = await prisma.tenancy.findMany({
-    where: { propertyId: params.propertyId, status: "ACTIVE" },
-    include: {
-        tenant: true,
-        unit: true
+    if (!property || property.landlordId !== session.user.id) {
+      redirect("/dashboard");
     }
-  });
 
-  const reports = await prisma.repairReport.findMany({
-    where: {
-      tenancy: { propertyId: params.propertyId }
-    },
-    include: {
-      tenancy: {
-        include: {
+    const tenancies = await prisma.tenancy.findMany({
+      where: { propertyId: params.propertyId, status: "ACTIVE" },
+      include: {
           tenant: true,
           unit: true
-        }
       }
-    },
-    orderBy: { createdAt: "desc" }
-  });
+    });
 
-  return (
-    <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
-      <MaintenanceManager 
-        tenancies={JSON.parse(JSON.stringify(tenancies))}
-        reports={JSON.parse(JSON.stringify(reports))}
-        propertyId={params.propertyId}
-        propertyName={property.address || "this property"}
-      />
-    </div>
-  );
+    const reports = await prisma.repairReport.findMany({
+      where: {
+        tenancy: { propertyId: params.propertyId }
+      },
+      include: {
+        tenancy: {
+          include: {
+            tenant: true,
+            unit: true
+          }
+        }
+      },
+      orderBy: { createdAt: "desc" }
+    });
+
+    return (
+      <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+        <MaintenanceManager 
+          tenancies={JSON.parse(JSON.stringify(tenancies || []))}
+          reports={JSON.parse(JSON.stringify(reports || []))}
+          propertyId={params.propertyId}
+          propertyName={property.address || "this property"}
+        />
+      </div>
+    );
+  } catch (error) {
+    console.error("Maintenance Page Error:", error);
+    return (
+      <div className="p-20 text-center bg-white rounded-[2.5rem] border border-slate-100 m-10 shadow-sm">
+        <div className="w-20 h-20 bg-red-50 text-red-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <MaintenanceManager reports={[]} tenancies={[]} propertyId={""} propertyName={""} /> 
+            {/* Wait, I should just use a simple UI here */}
+            <Wrench className="w-10 h-10" />
+        </div>
+        <h2 className="text-2xl font-black text-slate-900 tracking-tight">Maintenance Records Unavailable</h2>
+        <p className="text-slate-500 mt-2 font-medium">We're having trouble loading the maintenance reports. Please refresh the page or try again later.</p>
+      </div>
+    );
+  }
 }

@@ -138,9 +138,9 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
   );
 
   const stats = {
-    open: reports.filter(r => r.status !== 'RESOLVED').length,
-    urgent: reports.filter(r => (r.urgency === 'URGENT' || r.urgency === 'EMERGENCY') && r.status !== 'RESOLVED').length,
-    resolved: reports.filter(r => r.status === 'RESOLVED').length,
+    open: (reports || []).filter(r => r.status !== 'RESOLVED').length,
+    urgent: (reports || []).filter(r => (r.urgency === 'URGENT' || r.urgency === 'EMERGENCY') && r.status !== 'RESOLVED').length,
+    resolved: (reports || []).filter(r => r.status === 'RESOLVED').length,
   };
 
   return (
@@ -198,10 +198,14 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
              </div>
            ) : (
              filteredReports.map((report) => (
-               <div key={report.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all group relative overflow-hidden">
-                  {report.status === "RESOLVED" && (
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                        <CheckCircle className="w-32 h-32" />
+                <div key={report.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1">
+                  {report.status === "RESOLVED" ? (
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
+                        <CheckCircle className="w-32 h-32 text-emerald-600" />
+                    </div>
+                  ) : (
+                    <div className="absolute top-0 right-0 p-8 opacity-[0.02] group-hover:opacity-10 transition-opacity -rotate-12">
+                        <Wrench className="w-32 h-32 text-primary" />
                     </div>
                   )}
                   
@@ -211,8 +215,8 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                           <Wrench className="w-6 h-6" />
                        </div>
                        <div>
-                          <p className="font-black text-slate-900">Unit {report.tenancy.unit?.unitNumber || "N/A"}</p>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy.tenant.name}</p>
+                          <p className="font-black text-slate-900">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy?.tenant?.name || "Unknown Tenant"}</p>
                        </div>
                     </div>
                     <Badge className={cn(
@@ -282,9 +286,9 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                   <SelectValue placeholder="Select a unit" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl">
-                    {tenancies.map(t => (
+                    {(tenancies || []).map(t => (
                         <SelectItem key={t.id} value={t.id}>
-                            Unit {t.unit?.unitNumber || "N/A"} - {t.tenant.name}
+                            Unit {t.unit?.unitNumber || "N/A"} - {t.tenant?.name || "Unknown"}
                         </SelectItem>
                     ))}
                 </SelectContent>

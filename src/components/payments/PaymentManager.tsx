@@ -65,7 +65,7 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
     <div className="space-y-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">Payments & Rent</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Payments & Rent</h1>
           <p className="text-muted-foreground mt-1 font-medium">Tracking income and collection for {propertyName}.</p>
         </div>
         <div className="flex items-center gap-3">

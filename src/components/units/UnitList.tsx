@@ -192,10 +192,10 @@ export function UnitList({ units, propertyId }: UnitListProps) {
   const hasActiveTenant = selectedUnit?.tenancies?.some((t: any) => t.status === "ACTIVE");
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">Units Management</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Units Management</h1>
           <p className="text-muted-foreground mt-1 font-medium">Manage individual units and their occupancy.</p>
         </div>
         <Button 

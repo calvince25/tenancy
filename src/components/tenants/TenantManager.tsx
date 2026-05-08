@@ -131,14 +131,14 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">Tenants directory</h1>
+          <h1 className="text-3xl font-black text-slate-900 tracking-tight">Tenants Directory</h1>
           <p className="text-muted-foreground mt-1 font-medium">Residents currently staying at {propertyName}.</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl border-slate-200 font-bold gap-2 h-11 px-6 shadow-sm">
+          <Button variant="outline" className="h-11 rounded-xl border-slate-200 font-bold gap-2 px-6 shadow-sm">
             <Download className="w-4 h-4" /> Export CSV
           </Button>
           <Button 
