@@ -199,20 +199,19 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
              </div>
            ) : (
              filteredReports.map((report) => (
-                <div key={report.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1 flex flex-col h-full min-w-0 break-words">
-                  {report.status === "RESOLVED" ? (
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
-                        <CheckCircle className="w-32 h-32 text-emerald-600" />
-                    </div>
-                  ) : (
-                    <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
-                        <Wrench className="w-32 h-32 text-amber-600" />
-                    </div>
-                  )}
-                  
+                <div key={report.id} className="bg-white p-6 md:p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1 flex flex-col h-full min-w-0">
+                  {/* Background Watermark Icon */}
+                  <div className="absolute -top-6 -right-6 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity rotate-12 pointer-events-none">
+                    {report.status === "RESOLVED" ? (
+                        <CheckCircle className="w-48 h-48 text-emerald-600" />
+                    ) : (
+                        <Wrench className="w-48 h-48 text-amber-600" />
+                    )}
+                  </div>
+
                   <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-6">
-                        <div className="flex flex-col gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
+                        <div className="space-y-3">
                            <Badge className={cn(
                                 "w-fit rounded-full px-3 py-1 text-[9px] font-black tracking-widest border-none shadow-sm",
                                 report.urgency === 'EMERGENCY' ? 'bg-red-50 text-red-600' : 
@@ -220,25 +219,38 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                            )}>
                                {report.urgency}
                            </Badge>
-                           <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest flex items-center gap-1">
-                               <Clock className="w-3 h-3" /> {new Date(report.createdAt).toLocaleDateString()}
+                           <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.2em] flex items-center gap-2">
+                               <Clock className="w-3.5 h-3.5" /> {new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                            </p>
                         </div>
-                        <div className="text-right">
-                           <p className="font-black text-slate-900">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</p>
-                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">{report.tenancy?.tenant?.name || "Unknown Tenant"}</p>
+                        <div className="bg-slate-50/80 backdrop-blur-sm p-3 rounded-2xl border border-slate-100/50 sm:text-right">
+                           <p className="font-black text-slate-900 text-sm">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</p>
+                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-0.5">{report.tenancy?.tenant?.name || "Unknown Tenant"}</p>
                         </div>
                     </div>
 
-                    <div className="space-y-2 mb-6 flex-grow">
-                        <h4 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors">{report.issue}</h4>
-                        <p className="text-sm text-slate-500 line-clamp-3">{report.description}</p>
+                    <div className="space-y-3 mb-8 flex-grow">
+                        <div className="flex items-center gap-2 text-primary">
+                            <AlertCircle className="w-4 h-4" />
+                            <span className="text-[10px] font-black uppercase tracking-widest">{report.category || "General"}</span>
+                        </div>
+                        <h4 className="text-xl font-bold text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-2">{report.issue}</h4>
+                        <p className="text-sm text-slate-500 line-clamp-3 leading-relaxed break-words">{report.description}</p>
                     </div>
 
                     <div className="flex items-center justify-between pt-6 border-t border-slate-50">
                         <div className="flex flex-col">
                             {report.status === "RESOLVED" && report.cost && (
-                                <span className="text-xs font-black text-emerald-600 mt-1">Cost: KES {report.cost.toLocaleString()}</span>
+                                <div className="flex flex-col">
+                                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-0.5">Repair Cost</span>
+                                    <span className="text-sm font-black text-emerald-600">KES {report.cost.toLocaleString()}</span>
+                                </div>
+                            )}
+                            {report.status !== "RESOLVED" && (
+                                <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+                                    Awaiting Action
+                                </span>
                             )}
                         </div>
                         
@@ -246,7 +258,7 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                             {report.status !== "RESOLVED" ? (
                                 <Button 
                                     size="sm" 
-                                    className="rounded-xl font-bold text-[10px] h-8 bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-200"
+                                    className="rounded-xl font-bold text-[10px] px-4 h-9 bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg shadow-emerald-200 transition-all active:scale-95"
                                     onClick={() => {
                                         setSelectedReport(report);
                                         setIsResolveModalOpen(true);
@@ -255,11 +267,12 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
                                     Mark Resolved
                                 </Button>
                             ) : (
-                                <Badge className="bg-emerald-50 text-emerald-600 border-none px-3 py-1 text-[9px] font-black tracking-widest">
-                                    RESOLVED
-                                </Badge>
+                                <div className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                                    <CheckCircle2 className="w-3.5 h-3.5" />
+                                    <span className="text-[9px] font-black tracking-widest uppercase">Resolved</span>
+                                </div>
                             )}
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50">
+                            <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors">
                                 <Trash2 className="w-4 h-4" />
                             </Button>
                         </div>

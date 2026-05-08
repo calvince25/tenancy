@@ -106,10 +106,11 @@ export function TenantManager({ initialTenancies, vacantUnits, propertyId, prope
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch(`/api/tenants?id=${selectedTenancy.id}`, {
+      const res = await fetch(`/api/tenants`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          id: selectedTenancy.id,
           ...formData,
           monthlyRent: parseFloat(formData.monthlyRent),
           depositAmount: formData.depositAmount ? parseFloat(formData.depositAmount) : 0,
