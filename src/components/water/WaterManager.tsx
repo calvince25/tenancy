@@ -167,8 +167,8 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
                     {filteredBills.map((bill) => (
                         <tr key={bill.id} className="hover:bg-slate-50/30 transition-colors group">
                             <td className="px-8 py-5">
-                                <p className="font-bold text-slate-900 text-sm">Unit {bill.tenancy.unit?.unitNumber || "N/A"}</p>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{bill.tenancy.tenant.name}</p>
+                                <p className="font-bold text-slate-900 text-sm">Unit {bill.tenancy?.unit?.unitNumber || "N/A"}</p>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">{bill.tenancy?.tenant?.name || "Unknown Tenant"}</p>
                             </td>
                             <td className="px-8 py-5 text-center">
                                 <span className="text-sm font-medium text-slate-500">{bill.previousReading}</span>

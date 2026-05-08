@@ -74,7 +74,7 @@ export function LandlordNav() {
         </div>
         
         {/* Navigation */}
-        <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-4 space-y-1 overflow-y-auto no-scrollbar">
           <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] px-4 mb-4">Management Dashboard</p>
           {propertyItems.map((item) => {
             const active = isActive(item.href);

@@ -25,12 +25,12 @@ export default async function PropertyLayout({
   }
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       {/* Navigation Sidebar */}
       <LandlordNav />
 
       {/* Main Content Area */}
-      <main className="flex-1 md:pl-72 flex flex-col min-h-screen">
+      <main className="md:pl-72 flex flex-col min-h-screen">
         {/* Sticky Header Banner */}
         <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-6 py-4 md:px-10 flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -44,7 +44,7 @@ export default async function PropertyLayout({
           </div>
         </header>
         
-        <div className="flex-1 p-4 md:p-0">
+        <div className="flex-1">
           {children}
         </div>
       </main>

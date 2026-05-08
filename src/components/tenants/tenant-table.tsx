@@ -63,15 +63,15 @@ export function TenantTable({
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex flex-col">
-                    <span className="font-bold text-primary text-sm">{tenancy.tenant.name}</span>
-                    <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{tenancy.tenant.phone}</span>
+                    <span className="font-bold text-primary text-sm">{tenancy.tenant?.name || "Unknown Tenant"}</span>
+                    <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">{tenancy.tenant?.phone || "No Phone"}</span>
                   </div>
                 </div>
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
                   <span className="font-bold text-primary text-sm">Unit {tenancy.unit?.unitNumber || "N/A"}</span>
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase">{tenancy.property.type}</span>
+                  <span className="text-[10px] text-muted-foreground font-bold uppercase">{tenancy.property?.type || "Property"}</span>
                 </div>
               </TableCell>
               <TableCell>

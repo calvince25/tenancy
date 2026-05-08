@@ -159,7 +159,7 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
                         return (
                             <tr key={t.id} className="hover:bg-slate-50/30 transition-colors group">
                                 <td className="px-8 py-5">
-                                    <p className="font-bold text-slate-900 text-sm">{t.tenant.name}</p>
+                                    <p className="font-bold text-slate-900 text-sm">{t.tenant?.name || "Unknown Tenant"}</p>
                                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Unit {t.unit?.unitNumber || "N/A"}</p>
                                 </td>
                                 <td className="px-8 py-5">
