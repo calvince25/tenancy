@@ -45,6 +45,8 @@ interface WaterManagerProps {
 export function WaterManager({ tenancies, waterBills, propertyId, propertyName, waterRate }: WaterManagerProps) {
   const router = useRouter();
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedBill, setSelectedBill] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -53,6 +55,11 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
     previousReading: "0",
     currentReading: "",
     month: new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+  });
+
+  const [editData, setEditData] = useState({
+    currentReading: "",
+    status: "UNPAID",
   });
 
   const handleOpenLog = () => {
@@ -105,6 +112,41 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
 
       toast.success("Water bill generated successfully");
       setIsLogModalOpen(false);
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateBill = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const curr = parseFloat(editData.currentReading);
+      const unitsUsed = curr - selectedBill.previousReading;
+      const totalAmount = unitsUsed * selectedBill.ratePerUnit;
+
+      const res = await fetch("/api/water-bills", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          id: selectedBill.id,
+          currentReading: curr,
+          unitsUsed,
+          totalAmount,
+          status: editData.status,
+        }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.message || "Failed to update water bill");
+      }
+
+      toast.success("Water bill updated successfully");
+      setIsEditModalOpen(false);
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
@@ -194,7 +236,19 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
                                         {bill.status}
                                     </Badge>
                                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                        <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-900">
+                                        <Button 
+                                            variant="ghost" 
+                                            size="icon" 
+                                            className="h-7 w-7 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-900"
+                                            onClick={() => {
+                                                setSelectedBill(bill);
+                                                setEditData({
+                                                    currentReading: bill.currentReading.toString(),
+                                                    status: bill.status
+                                                });
+                                                setIsEditModalOpen(true);
+                                            }}
+                                        >
                                             <Pencil className="w-3.5 h-3.5" />
                                         </Button>
                                     </div>
@@ -289,6 +343,51 @@ export function WaterManager({ tenancies, waterBills, propertyId, propertyName, 
             <DialogFooter className="pt-4">
               <Button type="submit" disabled={isLoading || !formData.tenancyId || !formData.currentReading} className="w-full rounded-xl font-bold h-12 shadow-lg shadow-primary/20">
                 {isLoading ? "Saving..." : "Generate Water Bill"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <Pencil className="w-6 h-6 text-primary" />
+                Edit Water Bill
+            </DialogTitle>
+            <DialogDescription>Update reading or payment status for this bill.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleUpdateBill} className="space-y-5 py-4">
+            <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Current Reading</Label>
+                <Input 
+                    type="number"
+                    step="0.01"
+                    value={editData.currentReading}
+                    onChange={(e) => setEditData({...editData, currentReading: e.target.value})}
+                    required
+                    className="rounded-xl h-12 border-primary/20 focus:ring-primary"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Payment Status</Label>
+                <Select value={editData.status} onValueChange={(v) => setEditData({...editData, status: v})}>
+                    <SelectTrigger className="rounded-xl h-12">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl">
+                        <SelectItem value="UNPAID">Unpaid</SelectItem>
+                        <SelectItem value="PAID">Paid</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="submit" disabled={isLoading} className="w-full rounded-xl font-bold h-12 shadow-lg shadow-primary/20">
+                {isLoading ? "Updating..." : "Update Water Bill"}
               </Button>
             </DialogFooter>
           </form>

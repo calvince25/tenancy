@@ -17,6 +17,23 @@ import {
   AlertCircle
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface PaymentManagerProps {
@@ -29,6 +46,16 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [paymentForm, setPaymentForm] = useState({
+    tenancyId: "",
+    amount: "",
+    period: new Date().toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }),
+    method: "MPESA",
+    reference: "",
+  });
 
   const monthYear = selectedDate.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
 
@@ -72,7 +99,10 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
           <Button variant="outline" className="rounded-xl border-slate-200 font-bold gap-2 h-11 px-6 shadow-sm">
             <Download className="w-4 h-4" /> Download Full Report
           </Button>
-          <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl font-bold gap-2 h-11 px-6 shadow-lg shadow-primary/20">
+          <Button 
+            onClick={() => setIsRecordModalOpen(true)}
+            className="bg-primary hover:bg-primary/90 text-white rounded-xl font-bold gap-2 h-11 px-6 shadow-lg shadow-primary/20"
+          >
             <Plus className="w-4 h-4" /> Record Payment
           </Button>
         </div>
@@ -197,6 +227,111 @@ export function PaymentManager({ tenancies, propertyId, propertyName }: PaymentM
             </table>
         </div>
       </div>
+      {/* Record Payment Modal */}
+      <Dialog open={isRecordModalOpen} onOpenChange={setIsRecordModalOpen}>
+        <DialogContent className="sm:max-w-[425px] rounded-[2.5rem]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <CreditCard className="w-6 h-6 text-primary" />
+                Record Payment
+            </DialogTitle>
+            <DialogDescription>Manually log a rent payment for a tenant.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            setIsLoading(true);
+            try {
+              const res = await fetch("/api/payments", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...paymentForm,
+                  paymentReference: paymentForm.reference,
+                  amount: parseFloat(paymentForm.amount),
+                  status: "CONFIRMED",
+                }),
+              });
+              if (!res.ok) throw new Error("Failed to record payment");
+              toast.success("Payment recorded successfully");
+              setIsRecordModalOpen(false);
+              router.refresh();
+            } catch (err: any) {
+              toast.error(err.message);
+            } finally {
+              setIsLoading(false);
+            }
+          }} className="space-y-5 py-4">
+            <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Select Tenant</Label>
+                <Select value={paymentForm.tenancyId} onValueChange={(v) => {
+                    const t = tenancies.find(x => x.id === v);
+                    setPaymentForm({...paymentForm, tenancyId: v, amount: t?.monthlyRent?.toString() || ""});
+                }}>
+                    <SelectTrigger className="rounded-xl h-12">
+                        <SelectValue placeholder="Choose a tenant" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-2xl">
+                        {tenancies.map(t => (
+                            <SelectItem key={t.id} value={t.id}>
+                                Unit {t.unit?.unitNumber || "N/A"} - {t.tenant?.name || "Unknown"}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label className="font-bold text-slate-700">Amount (KES)</Label>
+                    <Input 
+                        type="number"
+                        value={paymentForm.amount}
+                        onChange={(e) => setPaymentForm({...paymentForm, amount: e.target.value})}
+                        required
+                        className="rounded-xl h-12"
+                    />
+                </div>
+                <div className="space-y-2">
+                    <Label className="font-bold text-slate-700">Method</Label>
+                    <Select value={paymentForm.method} onValueChange={(v) => setPaymentForm({...paymentForm, method: v})}>
+                        <SelectTrigger className="rounded-xl h-12">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl">
+                            <SelectItem value="MPESA">M-Pesa</SelectItem>
+                            <SelectItem value="BANK_TRANSFER">Bank Transfer</SelectItem>
+                            <SelectItem value="CASH">Cash</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <Label className="font-bold text-slate-700">Reference / Period</Label>
+                <div className="grid grid-cols-2 gap-2">
+                    <Input 
+                        value={paymentForm.reference}
+                        onChange={(e) => setPaymentForm({...paymentForm, reference: e.target.value})}
+                        placeholder="Ref (e.g. QWE123)"
+                        className="rounded-xl h-12"
+                    />
+                    <Input 
+                        value={paymentForm.period}
+                        onChange={(e) => setPaymentForm({...paymentForm, period: e.target.value})}
+                        placeholder="Month (e.g. June 2026)"
+                        className="rounded-xl h-12"
+                    />
+                </div>
+            </div>
+
+            <DialogFooter className="pt-4">
+              <Button type="submit" disabled={isLoading || !paymentForm.tenancyId} className="w-full rounded-xl font-bold h-12 shadow-lg shadow-primary/20">
+                {isLoading ? "Recording..." : "Record Payment"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

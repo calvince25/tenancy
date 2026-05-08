@@ -12,7 +12,7 @@ export default async function PropertyWaterPage({ params }: { params: { property
 
   const property = await prisma.property.findUnique({
     where: { id: params.propertyId },
-    select: { address: true, landlordId: true }
+    select: { address: true, landlordId: true, waterRate: true }
   });
 
   if (!property || property.landlordId !== session.user.id) {

@@ -198,7 +198,7 @@ export function MaintenanceManager({ tenancies, reports, propertyId, propertyNam
              </div>
            ) : (
              filteredReports.map((report) => (
-                <div key={report.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1">
+                <div key={report.id} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500 group relative overflow-hidden hover:-translate-y-1 min-w-0 break-words">
                   {report.status === "RESOLVED" ? (
                     <div className="absolute top-0 right-0 p-8 opacity-[0.05] group-hover:opacity-20 transition-opacity rotate-12">
                         <CheckCircle className="w-32 h-32 text-emerald-600" />

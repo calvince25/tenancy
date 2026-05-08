@@ -46,6 +46,32 @@ export async function POST(req: Request) {
   }
 }
 
+export async function PATCH(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || session.user.role !== "LANDLORD") {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { id, currentReading, unitsUsed, totalAmount, status } = body;
+
+    const bill = await prisma.waterBill.update({
+      where: { id },
+      data: {
+        currentReading,
+        unitsUsed,
+        totalAmount,
+        status,
+      },
+    });
+
+    return NextResponse.json(bill);
+  } catch (error) {
+    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+  }
+}
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
