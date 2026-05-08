@@ -28,7 +28,10 @@ export function LandlordNav() {
   // Detect if we're inside a property-scoped route
   // Path format: /dashboard/[propertyId]/[section]
   const pathParts = pathname.split('/').filter(Boolean);
-  const isPropertyScoped = pathParts.length >= 2 && pathParts[0] === 'dashboard' && pathParts[1] !== 'analytics' && pathParts[1] !== 'settings';
+  const globalSections = ['analytics', 'settings', 'properties', 'messages', 'tenants', 'payments', 'water', 'maintenance', 'units', 'repairs', 'account'];
+  const isPropertyScoped = pathParts.length >= 2 && 
+                          pathParts[0] === 'dashboard' && 
+                          !globalSections.includes(pathParts[1]);
   const propertyId = isPropertyScoped ? pathParts[1] : null;
 
   const propertyItems = isPropertyScoped ? [
