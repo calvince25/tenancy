@@ -11,6 +11,7 @@ model User {
   name            String?
   email           String    @unique
   phone           String?
+  nationalId      String?
   password        String
   role            String    // LANDLORD | TENANT
   profilePhotoUrl String?
@@ -35,11 +36,14 @@ model Property {
   id              String    @id @default(cuid())
   landlordId      String
   landlord        User      @relation(fields: [landlordId], references: [id])
+  name            String?   // Property Name
   address         String
   type            String    // HOUSE | APARTMENT | ROOM | OTHER
   photoUrl        String?
   inviteCode      String    @unique
   inviteExpiresAt DateTime
+  autoWaterBills  Boolean   @default(false)
+  waterRate       Float     @default(0)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
@@ -52,6 +56,8 @@ model Unit {
   propertyId      String
   property        Property  @relation(fields: [propertyId], references: [id])
   unitNumber      String    // e.g. "A1", "Room 4"
+  ownerName       String?
+  ownerPhone      String?
   type            String    // HOUSE | APARTMENT | ROOM | OTHER
   status          String    @default("VACANT") // VACANT | OCCUPIED | MAINTENANCE
   monthlyRent     Float?
@@ -152,8 +158,10 @@ model RepairReport {
   tenant              User      @relation(fields: [tenantId], references: [id])
   category            String    // PLUMBING | ELECTRICAL | etc.
   urgency             String    // EMERGENCY | SOON | WHEN_POSSIBLE
+  issue               String?   // Short title/summary
   description         String
   photoUrls           String?   // JSON string or comma-separated
+  cost                Float?    // Cost of maintenance
   status              String    @default("SUBMITTED") // SUBMITTED | SEEN | IN_PROGRESS | RESOLVED
   submittedAt         DateTime  @default(now())
   seenAt              DateTime?

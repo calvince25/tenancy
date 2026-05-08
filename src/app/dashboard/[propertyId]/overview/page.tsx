@@ -1,30 +1,25 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { LandlordDashboard } from "@/components/dashboard/landlord-dashboard";
 import { redirect } from "next/navigation";
+import { PropertyOverviewHub } from "@/components/dashboard/PropertyOverviewHub";
 
 export default async function PropertyOverviewPage({ params }: { params: { propertyId: string } }) {
   const session = await getServerSession(authOptions);
   if (!session) redirect("/login");
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+  const property = await prisma.property.findUnique({
+    where: { id: params.propertyId },
     include: {
-      properties: {
-        where: { id: params.propertyId },
+      units: {
         include: {
-          units: {
-            include: {
-              tenancies: {
-                where: { status: "ACTIVE" },
-                include: { 
-                  tenant: true,
-                  payments: true,
-                  waterBills: true,
-                  repairReports: true
-                }
-              }
+          tenancies: {
+            where: { status: "ACTIVE" },
+            include: { 
+              tenant: true,
+              payments: true,
+              waterBills: true,
+              repairReports: true
             }
           }
         }
@@ -32,9 +27,9 @@ export default async function PropertyOverviewPage({ params }: { params: { prope
     }
   });
 
-  if (!user || user.properties.length === 0) {
+  if (!property || property.landlordId !== session.user.id) {
     redirect("/dashboard");
   }
 
-  return <LandlordDashboard user={user} propertyId={params.propertyId} />;
+  return <PropertyOverviewHub property={JSON.parse(JSON.stringify(property))} />;
 }

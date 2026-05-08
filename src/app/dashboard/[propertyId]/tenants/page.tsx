@@ -38,41 +38,21 @@ export default async function PropertyTenantsPage({ params }: { params: { proper
     orderBy: { createdAt: "desc" }
   });
 
+  const vacantUnits = await prisma.unit.findMany({
+    where: { propertyId: params.propertyId, status: "VACANT" },
+    orderBy: { unitNumber: "asc" }
+  });
+
   return (
-    <div className="p-6 md:p-10 space-y-8 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-bold text-primary tracking-tight">Tenants directory</h1>
-          <p className="text-muted-foreground mt-1 font-medium">Residents currently staying at {property.address}.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" className="rounded-xl border-slate-200 font-bold gap-2 h-11 px-6">
-            <Download className="w-4 h-4" /> Export CSV
-          </Button>
-          <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl font-bold gap-2 h-11 px-6 shadow-lg shadow-primary/20">
-            <UserPlus className="w-4 h-4" /> Add New Tenant
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <Input 
-            placeholder="Search by name, phone, or unit number..." 
-            className="pl-10 h-12 rounded-xl border-slate-200 bg-white focus:ring-primary shadow-sm"
-          />
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="h-12 rounded-xl border-slate-200 bg-white px-6 font-bold gap-2">
-            <Filter className="w-4 h-4" /> Status: Active
-          </Button>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-[2rem] shadow-sm border border-slate-100 overflow-hidden">
-        <TenantTable tenancies={tenancies} />
-      </div>
+    <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+      <TenantManager 
+        initialTenancies={JSON.parse(JSON.stringify(tenancies))} 
+        vacantUnits={JSON.parse(JSON.stringify(vacantUnits))}
+        propertyId={params.propertyId}
+        propertyName={property.address || "this property"}
+      />
     </div>
   );
 }
+
+import { TenantManager } from "@/components/tenants/TenantManager";

@@ -7,6 +7,8 @@ import { z } from "zod";
 const unitSchema = z.object({
   propertyId: z.string(),
   unitNumber: z.string().min(1, "Unit number is required"),
+  ownerName: z.string().optional().nullable(),
+  ownerPhone: z.string().optional().nullable(),
   type: z.enum(["HOUSE", "APARTMENT", "ROOM", "OTHER"]),
   status: z.enum(["VACANT", "OCCUPIED", "MAINTENANCE"]),
   monthlyRent: z.number().optional(),
@@ -28,7 +30,8 @@ export async function GET(req: Request) {
           where: { status: "ACTIVE" },
           include: { tenant: true }
         }
-      }
+      },
+      orderBy: { unitNumber: "asc" }
     });
 
     return NextResponse.json(units);
@@ -47,10 +50,24 @@ export async function POST(req: Request) {
     const body = await req.json();
     const data = unitSchema.parse(body);
 
+    // Check for uniqueness within the same property
+    const existingUnit = await prisma.unit.findFirst({
+      where: {
+        propertyId: data.propertyId,
+        unitNumber: data.unitNumber
+      }
+    });
+
+    if (existingUnit) {
+      return NextResponse.json({ message: `Unit ${data.unitNumber} already exists in this property` }, { status: 400 });
+    }
+
     const unit = await prisma.unit.create({
       data: {
         propertyId: data.propertyId,
         unitNumber: data.unitNumber,
+        ownerName: data.ownerName,
+        ownerPhone: data.ownerPhone,
         type: data.type,
         status: data.status,
         monthlyRent: data.monthlyRent,
@@ -76,10 +93,31 @@ export async function PUT(req: Request) {
     const body = await req.json();
     const { id, ...data } = body;
 
+    if (!id) {
+      return NextResponse.json({ message: "Unit ID is required" }, { status: 400 });
+    }
+
+    // Check for uniqueness if unitNumber is changed
+    if (data.unitNumber) {
+        const existingUnit = await prisma.unit.findFirst({
+            where: {
+              propertyId: data.propertyId,
+              unitNumber: data.unitNumber,
+              NOT: { id }
+            }
+          });
+      
+          if (existingUnit) {
+            return NextResponse.json({ message: `Unit ${data.unitNumber} already exists in this property` }, { status: 400 });
+          }
+    }
+
     const unit = await prisma.unit.update({
       where: { id },
       data: {
         unitNumber: data.unitNumber,
+        ownerName: data.ownerName,
+        ownerPhone: data.ownerPhone,
         type: data.type,
         status: data.status,
         monthlyRent: data.monthlyRent,

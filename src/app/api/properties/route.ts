@@ -9,6 +9,8 @@ const propertySchema = z.object({
   address: z.string().min(5, "Address must be at least 5 characters"),
   type: z.enum(["HOUSE", "APARTMENT", "ROOM", "OTHER"]),
   photoUrl: z.string().optional(),
+  waterRate: z.number().optional(),
+  autoWaterBills: z.boolean().optional(),
 });
 
 export async function POST(req: Request) {

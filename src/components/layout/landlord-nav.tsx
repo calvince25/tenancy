@@ -32,10 +32,10 @@ export function LandlordNav() {
   const propertyId = isPropertyScoped ? pathParts[1] : null;
 
   const propertyItems = isPropertyScoped ? [
-    { label: "Units", href: `/dashboard/${propertyId}/units`, icon: Layers },
-    { label: "Property & Tenant", href: `/dashboard/${propertyId}/tenants`, icon: Users },
-    { label: "Payments & Rent", href: `/dashboard/${propertyId}/payments`, icon: CreditCard },
     { label: "Property & Units", href: `/dashboard/${propertyId}/overview`, icon: Building2 },
+    { label: "Units", href: `/dashboard/${propertyId}/units`, icon: Layers },
+    { label: "Tenants", href: `/dashboard/${propertyId}/tenants`, icon: Users },
+    { label: "Payments & Rent", href: `/dashboard/${propertyId}/payments`, icon: CreditCard },
     { label: "Water Bills", href: `/dashboard/${propertyId}/water`, icon: Droplets },
     { label: "Maintenance", href: `/dashboard/${propertyId}/maintenance`, icon: Wrench },
     { label: "Settings", href: `/dashboard/${propertyId}/settings`, icon: Settings },
