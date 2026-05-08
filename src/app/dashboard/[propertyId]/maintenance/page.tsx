@@ -43,7 +43,7 @@ export default async function PropertyMaintenancePage({ params }: { params: { pr
     });
 
     return (
-      <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+      <div className="p-6 md:p-10 animate-in fade-in duration-500">
         <MaintenanceManager 
           tenancies={JSON.parse(JSON.stringify(tenancies || []))}
           reports={JSON.parse(JSON.stringify(reports || []))}

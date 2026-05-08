@@ -34,7 +34,7 @@ export default async function PropertyUnitsPage({ params }: { params: { property
   }));
 
   return (
-    <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+    <div className="p-6 md:p-10 animate-in fade-in duration-500">
       <UnitList units={units as any} propertyId={params.propertyId} />
     </div>
   );

@@ -31,7 +31,7 @@ export default async function PropertyPaymentsPage({ params }: { params: { prope
   });
 
   return (
-    <div className="p-6 md:p-10 max-w-[1600px] mx-auto animate-in fade-in duration-500">
+    <div className="p-6 md:p-10 animate-in fade-in duration-500">
       <PaymentManager 
         tenancies={JSON.parse(JSON.stringify(tenancies))}
         propertyId={params.propertyId}
