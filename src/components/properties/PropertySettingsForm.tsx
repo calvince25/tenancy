@@ -14,8 +14,11 @@ import {
   Image as ImageIcon,
   AlertTriangle,
   RefreshCw,
-  Copy
+  Copy,
+  Camera,
+  Loader2
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -134,20 +137,66 @@ export function PropertySettingsForm({ property }: PropertySettingsFormProps) {
             </div>
 
             <div className="space-y-2">
-                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Property Photo URL</Label>
-                <div className="flex gap-4">
-                    <Input 
-                        value={formData.photoUrl}
-                        onChange={(e) => setFormData({...formData, photoUrl: e.target.value})}
-                        className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white transition-all font-bold text-slate-700"
-                        placeholder="https://images.unsplash.com/..."
-                    />
-                    <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-100 overflow-hidden">
+                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">Property Photo</Label>
+                <div className="flex flex-col sm:flex-row gap-6 items-start sm:items-center">
+                    <div 
+                        className="w-32 h-32 rounded-3xl bg-slate-100 flex items-center justify-center shrink-0 border-2 border-dashed border-slate-200 overflow-hidden relative group cursor-pointer hover:border-primary transition-all"
+                        onClick={() => document.getElementById('photo-upload')?.click()}
+                    >
                         {formData.photoUrl ? (
-                            <img src={formData.photoUrl} className="w-full h-full object-cover" alt="" />
+                            <>
+                                <img src={formData.photoUrl} className="w-full h-full object-cover" alt="" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <Camera className="w-6 h-6 text-white" />
+                                </div>
+                            </>
                         ) : (
-                            <ImageIcon className="w-5 h-5 text-slate-300" />
+                            <ImageIcon className="w-8 h-8 text-slate-300" />
                         )}
+                    </div>
+                    <div className="flex-1 space-y-3 w-full">
+                        <Input 
+                            value={formData.photoUrl}
+                            onChange={(e) => setFormData({...formData, photoUrl: e.target.value})}
+                            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white transition-all font-bold text-slate-700"
+                            placeholder="Enter image URL or upload below..."
+                        />
+                        <p className="text-[10px] text-slate-400 font-medium italic">Click the square to upload a new photo directly to your Supabase storage.</p>
+                        <input 
+                            type="file" 
+                            id="photo-upload" 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                
+                                setIsLoading(true);
+                                try {
+                                    const fileExt = file.name.split('.').pop();
+                                    const fileName = `${Math.random()}.${fileExt}`;
+                                    const filePath = `property-photos/${fileName}`;
+
+                                    const { error: uploadError } = await supabase.storage
+                                        .from('properties')
+                                        .upload(filePath, file);
+
+                                    if (uploadError) throw uploadError;
+
+                                    const { data: { publicUrl } } = supabase.storage
+                                        .from('properties')
+                                        .getPublicUrl(filePath);
+                                    
+                                    setFormData({ ...formData, photoUrl: publicUrl });
+                                    toast.success("Photo uploaded successfully");
+                                } catch (err: any) {
+                                    console.error(err);
+                                    toast.error("Upload failed: " + err.message);
+                                } finally {
+                                    setIsLoading(false);
+                                }
+                            }}
+                        />
                     </div>
                 </div>
             </div>

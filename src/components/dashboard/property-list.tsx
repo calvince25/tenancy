@@ -12,6 +12,7 @@ import {
   Camera
 } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { supabase } from "@/lib/supabase";
 
 type Property = {
   id: string;
@@ -71,6 +72,27 @@ export function PropertyList({ properties: initialProperties, landlordName }: Pr
     }
   };
 
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Math.random()}.${fileExt}`;
+    const filePath = `property-photos/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('properties')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      console.error("Upload error:", uploadError);
+      throw new Error("Failed to upload image. Please ensure 'properties' bucket exists and is public in Supabase.");
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('properties')
+      .getPublicUrl(filePath);
+      
+    return publicUrl;
+  };
+
   // ADD
   const handleAdd = async () => {
     if (!form.address.trim()) { setError("Please enter a property name."); return; }
@@ -78,10 +100,7 @@ export function PropertyList({ properties: initialProperties, landlordName }: Pr
     try {
       let photoUrl = "";
       if (form.photoFile) {
-        // Mock upload or actual upload logic here
-        // For now, we'll use a placeholder or data URL if possible, 
-        // but typically we'd upload to S3/Cloudinary/Supabase
-        photoUrl = form.photoPreview; 
+        photoUrl = await uploadImage(form.photoFile);
       }
 
       const res = await fetch("/api/properties", {
@@ -108,7 +127,7 @@ export function PropertyList({ properties: initialProperties, landlordName }: Pr
     try {
       let photoUrl = editTarget.photoUrl ?? "";
       if (form.photoFile) {
-        photoUrl = form.photoPreview;
+        photoUrl = await uploadImage(form.photoFile);
       }
 
       const res = await fetch("/api/properties", {
