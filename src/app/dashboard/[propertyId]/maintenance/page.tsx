@@ -39,7 +39,7 @@ export default async function PropertyMaintenancePage({ params }: { params: { pr
           }
         }
       },
-      orderBy: { createdAt: "desc" }
+      orderBy: { submittedAt: "desc" }
     });
 
     return (

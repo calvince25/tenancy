@@ -263,7 +263,7 @@ export function MaintenanceHub({ tenancies, reports, propertyId, propertyName }:
                           {report.urgency}
                         </Badge>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                          <Clock className="w-4 h-4" /> {new Date(report.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                          <Clock className="w-4 h-4" /> {new Date(report.submittedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                         </span>
                       </div>
                       <h4 className="text-2xl font-black text-slate-900 leading-tight group-hover:text-primary transition-colors line-clamp-2 uppercase italic">{report.issue}</h4>

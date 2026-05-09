@@ -49,13 +49,13 @@ export function MaintenanceTable({ reports }: { reports: any[] }) {
             </TableCell>
             <TableCell>
               <div className="flex flex-col">
-                <span className="font-bold text-primary">Unit {report.tenancy.unit.unitNumber}</span>
-                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">{report.tenancy.tenant.name}</span>
+                <span className="font-bold text-primary">Unit {report.tenancy?.unit?.unitNumber || "N/A"}</span>
+                <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight">{report.tenancy?.tenant?.name || "Unknown"}</span>
               </div>
             </TableCell>
             <TableCell>
               <Badge variant="outline" className="bg-slate-50 text-primary border-muted-foreground/10 text-[9px] font-bold uppercase tracking-wider">
-                {report.type || "PLUMBING"}
+                {report.type || report.category || "PLUMBING"}
               </Badge>
             </TableCell>
             <TableCell className="max-w-[200px]">
@@ -64,11 +64,11 @@ export function MaintenanceTable({ reports }: { reports: any[] }) {
             <TableCell>
                <Badge className={cn(
                   "rounded-full px-3 py-0.5 text-[9px] font-bold border-none",
-                  report.priority === "URGENT" ? "bg-destructive/10 text-destructive" : 
-                  report.priority === "HIGH" ? "bg-warning/10 text-warning" : 
+                  (report.priority || report.urgency) === "URGENT" || (report.priority || report.urgency) === "EMERGENCY" ? "bg-destructive/10 text-destructive" : 
+                  (report.priority || report.urgency) === "HIGH" ? "bg-warning/10 text-warning" : 
                   "bg-primary/10 text-primary"
                )}>
-                  {report.priority || "NORMAL"}
+                  {report.priority || report.urgency || "NORMAL"}
                </Badge>
             </TableCell>
             <TableCell>
@@ -93,7 +93,7 @@ export function MaintenanceTable({ reports }: { reports: any[] }) {
             </TableCell>
           </TableRow>
         ))}
-        {reports.length === 0 && (
+        {(!reports || reports.length === 0) && (
           <TableRow>
             <TableCell colSpan={7} className="h-32 text-center text-muted-foreground font-medium italic">
               No maintenance requests found.
