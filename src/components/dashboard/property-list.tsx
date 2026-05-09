@@ -26,6 +26,7 @@ type Property = {
 type Props = {
   properties: Property[];
   landlordName: string;
+  isAdmin?: boolean;
 };
 
 function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
@@ -40,7 +41,7 @@ function Modal({ open, onClose, children }: { open: boolean; onClose: () => void
   );
 }
 
-export function PropertyList({ properties: initialProperties, landlordName }: Props) {
+export function PropertyList({ properties: initialProperties, landlordName, isAdmin }: Props) {
   const router = useRouter();
   const [properties, setProperties] = useState(initialProperties);
   const [showAdd, setShowAdd] = useState(false);
@@ -184,7 +185,17 @@ export function PropertyList({ properties: initialProperties, landlordName }: Pr
             </p>
           </div>
           
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            {isAdmin && (
+              <Button
+                onClick={() => router.push("/dashboard/landlords")}
+                variant="outline"
+                className="h-14 px-6 rounded-2xl font-bold border-slate-200 text-slate-600 hover:bg-slate-50 gap-2 shadow-sm"
+              >
+                <Users className="w-5 h-5 text-primary" />
+                User Management
+              </Button>
+            )}
             <Button
               onClick={() => signOut({ callbackUrl: "/login" })}
               variant="outline"

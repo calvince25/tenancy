@@ -39,6 +39,7 @@ export default async function LandlordDashboard() {
     <PropertyList
       properties={serialized}
       landlordName={user?.name ?? "Landlord"}
+      isAdmin={session.user.isDefault}
     />
   );
 }

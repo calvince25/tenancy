@@ -29,3 +29,36 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session || !session.user.isDefault) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get("userId");
+
+    if (!userId) {
+      return NextResponse.json({ message: "User ID required" }, { status: 400 });
+    }
+
+    // Prevent deleting self
+    if (userId === session.user.id) {
+        return NextResponse.json({ message: "Cannot delete yourself" }, { status: 400 });
+    }
+
+    await prisma.user.delete({
+      where: { id: userId, role: "LANDLORD" },
+    });
+
+    return NextResponse.json(
+      { message: "Landlord deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error) {
+    return NextResponse.json({ message: "Something went wrong" }, { status: 500 });
+  }
+}

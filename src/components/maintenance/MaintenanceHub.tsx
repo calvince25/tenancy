@@ -14,7 +14,8 @@ import {
   AlertTriangle,
   ArrowRight,
   Filter,
-  History
+  History,
+  CreditCard
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -164,6 +165,18 @@ export function MaintenanceHub({ tenancies, reports, propertyId, propertyName }:
   };
 
   const filteredReports = getFilteredReports();
+  
+  const unitExpenses = reports.reduce((acc: any, report) => {
+    if (report.status === 'RESOLVED' && report.cost) {
+      const unitKey = report.tenancy?.unit?.unitNumber || "Unassigned";
+      if (!acc[unitKey]) acc[unitKey] = { total: 0, count: 0 };
+      acc[unitKey].total += parseFloat(report.cost);
+      acc[unitKey].count += 1;
+    }
+    return acc;
+  }, {});
+
+  const totalSpent = reports.reduce((sum, r) => sum + (r.status === 'RESOLVED' ? (parseFloat(r.cost) || 0) : 0), 0);
 
   return (
     <div className="space-y-10 pb-32 max-w-7xl mx-auto">
@@ -225,18 +238,77 @@ export function MaintenanceHub({ tenancies, reports, propertyId, propertyName }:
             <TabsTrigger value="resolved" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm">
               History
             </TabsTrigger>
+            <TabsTrigger value="expenses" className="rounded-xl px-6 py-2.5 font-bold data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm">
+              Expenses
+            </TabsTrigger>
           </TabsList>
 
-          <div className="relative w-full lg:w-80">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-            <Input 
-              placeholder="Search by unit, tenant or issue..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-11 h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:ring-primary/20 transition-all font-medium"
-            />
-          </div>
+          {activeTab !== 'expenses' && (
+            <div className="relative w-full lg:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input 
+                placeholder="Search by unit, tenant or issue..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-11 h-14 rounded-2xl border-slate-200 bg-white shadow-sm focus:ring-primary/20 transition-all font-medium"
+              />
+            </div>
+          )}
         </div>
+
+        <TabsContent value="expenses" className="mt-0">
+          <div className="space-y-8">
+            <div className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8">
+               <div className="flex items-center gap-6">
+                  <div className="w-20 h-20 bg-blue-50 rounded-[2rem] flex items-center justify-center text-blue-600">
+                     <CreditCard className="w-10 h-10" />
+                  </div>
+                  <div>
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Maintenance Spend</p>
+                     <h2 className="text-4xl font-black text-slate-900 tracking-tighter">KES {totalSpent.toLocaleString()}</h2>
+                  </div>
+               </div>
+               <div className="h-16 w-px bg-slate-100 hidden md:block" />
+               <div className="flex gap-12">
+                  <div className="text-center">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Units Tracked</p>
+                     <p className="text-2xl font-black text-slate-900">{Object.keys(unitExpenses).length}</p>
+                  </div>
+                  <div className="text-center">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Avg / Request</p>
+                     <p className="text-2xl font-black text-slate-900">
+                        KES {(totalSpent / (resolvedReports.length || 1)).toLocaleString(undefined, {maximumFractionDigits: 0})}
+                     </p>
+                  </div>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+               {Object.entries(unitExpenses).map(([unit, data]: [string, any]) => (
+                  <div key={unit} className="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all group">
+                     <div className="flex justify-between items-start mb-6">
+                        <div className="bg-slate-50 px-4 py-2 rounded-2xl">
+                           <p className="text-xs font-black text-primary uppercase">Unit {unit}</p>
+                        </div>
+                        <Badge className="bg-blue-50 text-blue-600 border-none font-bold">{data.count} Jobs</Badge>
+                     </div>
+                     <p className="text-3xl font-black text-slate-900 tracking-tighter mb-1">KES {data.total.toLocaleString()}</p>
+                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Unit Expense</p>
+                     
+                     <div className="mt-6 pt-6 border-t border-slate-50 flex items-center justify-between">
+                        <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest">Property: {propertyName}</span>
+                        <ArrowRight className="w-4 h-4 text-slate-200 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                     </div>
+                  </div>
+               ))}
+               {Object.keys(unitExpenses).length === 0 && (
+                  <div className="col-span-full py-20 text-center bg-slate-50/50 rounded-[3rem] border-2 border-dashed border-slate-200">
+                     <p className="text-slate-400 font-bold italic">No maintenance expenses recorded yet.</p>
+                  </div>
+               )}
+            </div>
+          </div>
+        </TabsContent>
 
         <TabsContent value={activeTab} className="mt-0">
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
