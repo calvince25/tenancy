@@ -14,8 +14,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Filter,
-  History,
-  Tool
+  History
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -173,7 +172,7 @@ export function MaintenanceHub({ tenancies, reports, propertyId, propertyName }:
         <div className="space-y-2">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
-              <Tool className="w-6 h-6" />
+              <Wrench className="w-6 h-6" />
             </div>
             <h1 className="text-4xl font-black text-slate-900 tracking-tight italic">Maintenance Hub</h1>
           </div>
@@ -338,7 +337,7 @@ export function MaintenanceHub({ tenancies, reports, propertyId, propertyName }:
       <Dialog open={isLogModalOpen} onOpenChange={setIsLogModalOpen}>
         <DialogContent className="sm:max-w-[550px] rounded-[3rem] p-0 overflow-hidden border-none shadow-2xl">
           <div className="bg-primary p-8 text-white relative overflow-hidden">
-            <Tool className="absolute -right-8 -bottom-8 w-40 h-40 opacity-10 rotate-12" />
+            <Wrench className="absolute -right-8 -bottom-8 w-40 h-40 opacity-10 rotate-12" />
             <DialogHeader>
               <DialogTitle className="text-3xl font-black italic tracking-tight">Log Maintenance</DialogTitle>
               <DialogDescription className="text-white/70 font-medium italic">Create a new service ticket for your property.</DialogDescription>
