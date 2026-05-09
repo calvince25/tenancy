@@ -8,12 +8,14 @@ const prismaClientSingleton = () => {
     throw new Error("DATABASE_URL is not defined in environment variables");
   }
   
-  console.log("Initializing Prisma with connection string (redacted)...");
+  const isSupabase = connectionString.includes("supabase.co") || connectionString.includes("supabase.com") || connectionString.includes("pooler.supabase.com");
+  
+  // Clean connection string for pg pool to prevent SSL conflicts
+  const cleanedConnectionString = connectionString.split('?')[0];
+
   const pool = new Pool({ 
-    connectionString,
-    ssl: connectionString.includes("supabase.com") || connectionString.includes("pooler.supabase.com") 
-      ? { rejectUnauthorized: false } 
-      : false
+    connectionString: cleanedConnectionString,
+    ssl: isSupabase ? { rejectUnauthorized: false } : false
   });
 
   pool.on('error', (err) => {
